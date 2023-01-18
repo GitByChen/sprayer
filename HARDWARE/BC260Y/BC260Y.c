@@ -475,7 +475,8 @@ void BC260Y_task(void const * argument )
                // printf("size=%d\r\n",strlen(JSON_MASSAGE));
                 if(MQTT_Publish(BC260_Massage.AT_MQTT_PUB,JSON_MASSAGE)==1)
                 {
-                       // BC260Y_Init();//对设备初始化	
+                       // BC260Y_Init();//对设备初始化
+									
                         connect_mqtt();
                 }				               
             }
