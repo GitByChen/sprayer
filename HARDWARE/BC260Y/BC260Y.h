@@ -93,9 +93,9 @@ void connect_mqtt(void);
 
 u8 MQTT_Subscribe(char *QMTSUB,u8 QOS);  //订阅
 u8 MQTT_UnSubscribe(char *QMTSUB,u8 QOS) ;         //退订
-u8 MQTT_Publish(const char *str, char *sub);
+u8 MQTT_Publish(const char *str, char *sub);//广播
 void MQTT_reply(char *subject,char *resp);
-void MQTT_joint(void);
+void MQTT_joint(void);//订阅/广播主题拼接
 
 #endif
 

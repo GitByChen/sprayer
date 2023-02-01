@@ -825,7 +825,7 @@ char WaitCardOff(void)
 void RC522Stask(void* pvParameters )
 {
     unsigned char snr=1;
-    u8 buf[2]={0,0},status=0;
+    u8 buf[4]={0,0,0,0},status=0;
 		
 	HX711_Massage.K=((((HX711_VAVDD)/HX711_BEARING)*HX711_GAIN)*HX711_24BIT)/HX711_BASE_VDD;      //计算转换的K值
     HX711_Massage.K/=HX711_K_VALUE;
@@ -861,9 +861,13 @@ void RC522Stask(void* pvParameters )
                 //读写卡
                 if(PCD_ReadBlock((snr*4+0), buf)==0) 
                 {
-                    Pcd_Massage_Flag.Pcd_Read_Flag=1; 
-                    Pcd_Massage_Flag.Pcd_Read_Card_Werght=((u16)buf[0])<<8 | (u16)buf[1];                   
-                    printf("读到的值是： %d\n",Pcd_Massage_Flag.Pcd_Read_Card_Werght);						
+                     Pcd_Massage_Flag.Pcd_Read_Flag=1; 
+                    Pcd_Massage_Flag.Pcd_Read_Card_Werght=Weight_Decode(buf);
+                    if(Pcd_Massage_Flag.Pcd_Read_Card_Werght!=1)
+                    {                      
+                        //Pcd_Massage_Flag.Pcd_Read_Card_Werght=((u16)buf[0])<<8 | (u16)buf[1];                   
+                        printf("读到的值是： %d\n",Pcd_Massage_Flag.Pcd_Read_Card_Werght);						
+                    }
                 }
            }                               
             if(Pcd_Massage_Flag.Pcd_Read_Flag==1 && Pcd_Massage_Flag.Pcd_Write_Flag==0 && Pcd_Massage_Flag.Card_Modal==0)
@@ -881,6 +885,7 @@ void RC522Stask(void* pvParameters )
                         else
                         {
                             Pcd_Massage_Flag.Pcd_Legal_Flag=1;
+                             Pcd_Massage_Flag.Pcd_Write_Flag=1;//写标志位置1，将最新的重量写进卡里
                         }
                     }
                     else
@@ -893,6 +898,7 @@ void RC522Stask(void* pvParameters )
                         else
                         {
                             Pcd_Massage_Flag.Pcd_Legal_Flag=1;
+                             Pcd_Massage_Flag.Pcd_Write_Flag=1;//写标志位置1，将最新的重量写进卡里
                         }
                     }
 

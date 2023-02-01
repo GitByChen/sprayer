@@ -36,7 +36,7 @@ typedef enum
 //extern enum TPYE CJSON_TASK_TPYE;
 typedef struct{
     
-    char Task_Buf[200];
+ //   char Task_Buf[200];
     char task_no[15];           //存放任务编号
     char timestart[10];        //开始时间字符串
     char timeend[10];          //结束时间字符串

@@ -209,11 +209,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   if (htim->Instance == TIM6) {
     Send_Timeout++;
 		Send_timing_wakeup++;
-    //if(Send_Timeout>=1000)
-    //  Send_Timeout=0;
-     if (Send_timing_wakeup>=60)
+    if(Send_Timeout>=1000)
+      Send_Timeout=0;
+    if(Send_timing_wakeup>=1000)
     {
-      printf("num=%d,flag=%d\r\n",Send_timing_wakeup,BC260_Massage.BC260Y_CONNECT_FLAG);
+      Send_timing_wakeup=0;
     }
     if(Pcd_Massage_Flag.Pcd_Read_Flag==0 && Pcd_Massage_Flag.Have_A_Card==PCD_OK) //�?测到卡并且没有读卡才计时
     {

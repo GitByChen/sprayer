@@ -213,7 +213,7 @@ typedef struct{
     u8 Have_A_Card;         //是否有卡
     u8 Card_Modal;          //卡的模式  0：正常模式；1：注水模式    
     u8 Pcd_Read_Flag;       //0:没有读 1：读取正确 2：读取错误
-    u8 Pcd_Write_Flag;      //0:没有写  1：准备写  2：写完成
+    u8 Pcd_Write_Flag;      //0:没有写  1：准备写  2：写完成 3:上报完成
     u8 Pcd_Legal_Flag;      //药水合法标志位  1：合法 2：不合法
     u16 Pcd_Read_Card_Werght; //读出来的重量
     u32 Pcd_Card_ID;        //卡的ID

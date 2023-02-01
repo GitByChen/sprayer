@@ -183,10 +183,10 @@ uint8_t ParseStr(const char *JSON,TPYE CJSON_TASK_TPYE)
                     W25QXX_Write((u8*)&Cjson_Buf,CJSON_DATA_FLASH_BASE,CJSON_DATA_SIZE);
 					printf("set ok\r\n");	
                     }
-                    else
-                    {
-                        printf("设置满了，请清除旧设置");
-                    }
+                    //else
+                    //{
+                    //    printf("设置满了，请清除旧设置");
+                    //}
 
                 }
                 else if(task_flag->valueint==2)     //修改
@@ -297,7 +297,7 @@ uint8_t ParseStr(const char *JSON,TPYE CJSON_TASK_TPYE)
                 sDate.Month=month;
                 sDate.Date=date;
                 HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD);//设置时间	
-                HAL_UART_Transmit(&huart3,(u8*)"ok \r\n", strlen("ok \r\n"), 100);    // 发送                
+                //HAL_UART_Transmit(&huart3,(u8*)"ok \r\n", strlen("ok \r\n"), 100);    // 发送                
             }
             else if(strstr(str_arder->valuestring,del)!=0)
            {
@@ -342,7 +342,7 @@ uint8_t ParseStr(const char *JSON,TPYE CJSON_TASK_TPYE)
                 sDate.Month=month;
                 sDate.Date=date;
                 HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD);//设置时间	
-                HAL_UART_Transmit(&huart3,(u8*)"ok \r\n", strlen("ok \r\n"), 100);    // 发送                
+               // HAL_UART_Transmit(&huart3,(u8*)"ok \r\n", strlen("ok \r\n"), 100);    // 发送                
   
             }
         break;

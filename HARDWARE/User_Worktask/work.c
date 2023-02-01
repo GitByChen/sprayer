@@ -13,13 +13,12 @@
 //互斥信号量句柄
 extern SemaphoreHandle_t MutexSemaphore;	//互斥信号量
 
-_calendar_obj calendar;//时钟结构体 
+//_calendar_obj calendar;//时钟结构体 
 _work_time work_time={0,0,0,0,0,0,0}; 		//存放时间合并后的字符，用于与Cjson数据比较  
- u8 RTC_IT_SEC_FLAG=0,RTC_IT_ALR_FLAG=0;
 extern	RTC_DateTypeDef GetData;    //日期
 extern	RTC_TimeTypeDef GetTime;    //时间
 
-//?·??????											 
+/*											 
 u8 const table_week[12]={0,3,3,6,1,4,6,2,5,0,3,5}; //???????????	  
 
 //获得现在是星期几
@@ -41,6 +40,7 @@ u8 RTC_Get_Week(u16 year,u8 month,u8 day)
 	if (yearL%4==0&&month<3)temp2--;
 	return(temp2%7);
 }
+*/
 void work_task(void const * argument )
 {
 	static u8 minute_interval_Cheak=0,minute_Cheak=0;
@@ -173,8 +173,8 @@ void work_task(void const * argument )
 					if(work_time.working_flag==0 )  //在工作时间内，并确认此工作组为启用状态
 					{
 						work_time.working_flag=1;		//时间段到了，工作标志位置1
-						Pcd_Massage_Flag.Pcd_Read_Flag=0; 			//工作开始，清除读卡标志位，进行读卡
-						Pcd_Massage_Flag.Pcd_Write_Flag=1;				//工作，更新写卡标志位，去写卡
+						//Pcd_Massage_Flag.Pcd_Read_Flag=0; 			//工作开始，清除读卡标志位，进行读卡
+						//Pcd_Massage_Flag.Pcd_Write_Flag=1;				//工作，更新写卡标志位，去写卡
 					} 
 				}
 			}			

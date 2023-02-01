@@ -156,15 +156,6 @@ void Get_WeightBase(void)
 	HX711_Massage.Base_value_Buf[3]=(u8)(HX711_Massage.Base_Weight_Value>>0);
 	W25QXX_Write(HX711_Massage.Base_value_Buf,HX711_WEIGHT_DATA_FLASH_BASE,HX711_WEIGHT_DATA_SIZE);
 	printf("get ok\r\n");
-	//printf("val=%d,%x,%x,%x,%x\r\n",HX711_Massage.Base_Weight_Value,HX711_Massage.Base_value_Buf[0],HX711_Massage.Base_value_Buf[1],HX711_Massage.Base_value_Buf[2],HX711_Massage.Base_value_Buf[3]);	
-	//vTaskDelay(100);
-	//BSP_W25Qx_Read(HX711_Massage.Base_value_Buf,HX711_WEIGHT_DATA_FLASH_BASE,HX711_WEIGHT_DATA_SIZE);
-	//HX711_Massage.Base_Weight_Value=(u32)HX711_Massage.Base_value_Buf[0]<<24|
-	//								(u32)HX711_Massage.Base_value_Buf[1]<<16|
-	//								(u32)HX711_Massage.Base_value_Buf[2]<< 8|
-	//								(u32)HX711_Massage.Base_value_Buf[3]<< 0;	
-	//printf("val1=%d,%x,%x,%x,%x\r\n",HX711_Massage.Base_Weight_Value,HX711_Massage.Base_value_Buf[0],HX711_Massage.Base_value_Buf[1],HX711_Massage.Base_value_Buf[2],HX711_Massage.Base_value_Buf[3]);	
-
 } 
 /*
 *	称重函数
@@ -173,12 +164,11 @@ float Get_Weight(void)
 {
 	HX711_Massage.Weight=0;
 	HX711_Massage.HX711_Weight_Value = HX711_Value_Dispose();
-	//printf("称量值是：%d,去皮值=%d,K=%f\r\n",HX711_Massage.HX711_Weight_Value,HX711_Massage.Base_Weight_Value,HX711_Massage.K);	
 	if(HX711_Massage.HX711_Weight_Value > HX711_Massage.Base_Weight_Value)			
 	{
 		HX711_Massage.Weight = (HX711_Massage.HX711_Weight_Value-HX711_Massage.Base_Weight_Value)/HX711_Massage.K;
 		HX711_Massage.Write_To_Card_Weight=(u16)((HX711_Massage.Weight*10)+0.5f);		//+0.5 进行四舍五入 
-		printf("重量值是：%d\r\n",HX711_Massage.Write_To_Card_Weight);
+		//printf("重量值是：%d\r\n",HX711_Massage.Write_To_Card_Weight);
 	}
 	return HX711_Massage.Weight;
 }
@@ -187,16 +177,47 @@ float Get_Weight(void)
 */
 void Write_Weight_To_Card(void)
 {
-	u8  sendbuf[2];		//将重量分成两个字节写进卡内
+	u8  *sendbuf;		//将重量分成两个字节写进卡内
 	unsigned char snr=1;
-	sendbuf[0]= HX711_Massage.Write_To_Card_Weight >>8;
-	sendbuf[1]=(u8)HX711_Massage.Write_To_Card_Weight;
+	sendbuf=Weight_encryption(HX711_Massage.Write_To_Card_Weight);
 	printf("重量值是：%d\r\n",HX711_Massage.Write_To_Card_Weight);
-	PCD_WriteBlock((snr*4+0), (u8 *)sendbuf);					//写卡操作
+	PCD_WriteBlock((snr*4+0), sendbuf);					//写卡操作
 	Pcd_Massage_Flag.Pcd_Write_Flag=2;					//写卡标志位置1，在工作时清零
 	PCD_Halt();	
 }
- 
+/*
+*重量加密
+*/
+u8* Weight_encryption(u16 weight)
+{
+	static u8 verify[4];
+	u16 verify_val;
+	verify_val=~weight;
+	verify[0]=(u8)HX711_Massage.Write_To_Card_Weight;
+	verify[1]=(u8)(HX711_Massage.Write_To_Card_Weight>>8);
+	verify[2]=(u8)verify_val;
+	verify[3]=(u8)(verify_val>>8);
+	return verify;
+}
+
+/*
+*重量解密
+*/
+u16 Weight_Decode(u8* weight)
+{
+	static u16 read_weight,read_verify_val;
+	read_weight=(u16)weight[0] | (u16)weight[1]<<8;
+	read_verify_val=(u16)weight[2] | (u16)weight[3]<<8;
+	read_verify_val=~read_verify_val;
+	if(read_weight==read_verify_val)
+	{
+		return read_weight;
+	}
+	else
+	{
+		return 1;
+	}
+}
 /*void HX711_task(void* pvParameters )
 {
 	HX711_Massage.K=((((HX711_VAVDD)/HX711_BEARING)*HX711_GAIN)*HX711_24BIT)/HX711_BASE_VDD;      //计算转换的K值

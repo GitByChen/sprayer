@@ -24,7 +24,7 @@ extern HX711 HX711_Massage;
 #define HX711_VAVDD     4.3         //满量程输出电压 mV
 #define HX711_24BIT     16777216    //2^24
 #define HX711_BASE_VDD  4300        //基准电压 mV
-#define HX711_BEARING   5           //最大承重 KG
+#define HX711_BEARING   1           //最大承重 KG
 //#define HX711_K_VALUE    1000*1.274 //转换系数 值大了降低系数 反之增加  //5KG的系数为1000*1.000 //1KG 系数1000*1.274
 #define HX711_DT_READ GPIO_ReadInputDataBit(HX711_PIN,HX711_DT)
 #if(HX711_BEARING==1)
@@ -44,6 +44,8 @@ extern u8 Weight_ValueInit;     //是否初始化完成
 void HX711_Task_Init(void);
 void HX711_Init(void);
 void Sck_Set(u8 PD);
+u8* Weight_encryption(u16 weight); //加密
+u16 Weight_Decode(u8* weight);      //解密
 
 #endif
 
