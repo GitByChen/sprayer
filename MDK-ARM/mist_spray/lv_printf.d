@@ -1,0 +1,10 @@
+mist_spray\lv_printf.o: ..\GUI\lvgl\src\misc\lv_printf.c
+mist_spray\lv_printf.o: ..\GUI\lvgl\src\misc\lv_printf.h
+mist_spray\lv_printf.o: ..\GUI\lvgl\src\misc\../lv_conf_internal.h
+mist_spray\lv_printf.o: F:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+mist_spray\lv_printf.o: ..\GUI\lvgl\src\misc\../lv_conf_kconfig.h
+mist_spray\lv_printf.o: ..\GUI\lvgl\src\misc\../../../lv_conf.h
+mist_spray\lv_printf.o: F:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h
+mist_spray\lv_printf.o: F:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+mist_spray\lv_printf.o: ..\GUI\lvgl\src\misc\lv_types.h
+mist_spray\lv_printf.o: F:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h

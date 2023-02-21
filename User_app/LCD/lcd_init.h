@@ -3,12 +3,11 @@
 
 #include "main.h"
 
-#define USE_HORIZONTAL 3 //设置横屏或者竖屏显示 0或1为竖屏 2或3为横屏
+#define USE_HORIZONTAL 2 //设置横屏或者竖屏显示 0或1为竖屏 2或3为横屏
 
 
-#define LCD_W 320
-#define LCD_H 240
-
+#define LCD_W 240
+#define LCD_H 320
 
 
 //-----------------LCD锟剿口讹拷锟斤拷---------------- 

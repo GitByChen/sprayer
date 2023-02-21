@@ -1,0 +1,16 @@
+mist_spray\gifdec.o: ..\GUI\lvgl\src\libs\gifdec.c
+mist_spray\gifdec.o: ..\GUI\lvgl\src\libs\gifdec.h
+mist_spray\gifdec.o: F:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+mist_spray\gifdec.o: ../GUI/lvgl/src/draw/sdl/../../misc/lv_fs.h
+mist_spray\gifdec.o: ../GUI/lvgl/src/draw/sdl/../../misc/../lv_conf_internal.h
+mist_spray\gifdec.o: ../GUI/lvgl/src/draw/sdl/../../misc/../lv_conf_kconfig.h
+mist_spray\gifdec.o: ../GUI/lvgl/src/draw/sdl/../../misc/../../../lv_conf.h
+mist_spray\gifdec.o: F:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+mist_spray\gifdec.o: ../GUI/lvgl/src/draw/sdl/../../misc/lv_log.h
+mist_spray\gifdec.o: ../GUI/lvgl/src/draw/sdl/../../misc/lv_types.h
+mist_spray\gifdec.o: ../GUI/lvgl/src/draw/sdl/../../misc/lv_mem.h
+mist_spray\gifdec.o: F:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+mist_spray\gifdec.o: F:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+mist_spray\gifdec.o: ../GUI/lvgl/src/draw/sdl/../../misc/lv_color.h
+mist_spray\gifdec.o: ../GUI/lvgl/src/draw/sdl/../../misc/lv_assert.h
+mist_spray\gifdec.o: ../GUI/lvgl/src/draw/sdl/../../misc/lv_math.h

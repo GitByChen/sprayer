@@ -1,0 +1,9 @@
+mist_spray\qrcodegen.o: ..\GUI\lvgl\src\libs\qrcodegen.c
+mist_spray\qrcodegen.o: F:\Keil_v5\ARM\ARMCC\Bin\..\include\assert.h
+mist_spray\qrcodegen.o: F:\Keil_v5\ARM\ARMCC\Bin\..\include\limits.h
+mist_spray\qrcodegen.o: F:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
+mist_spray\qrcodegen.o: F:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+mist_spray\qrcodegen.o: ..\GUI\lvgl\src\libs\qrcodegen.h
+mist_spray\qrcodegen.o: F:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+mist_spray\qrcodegen.o: F:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+mist_spray\qrcodegen.o: F:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h

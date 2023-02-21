@@ -1,0 +1,13 @@
+mist_spray\lv_lru.o: ..\GUI\lvgl\src\misc\lv_lru.c
+mist_spray\lv_lru.o: ..\GUI\lvgl\src\misc\lv_lru.h
+mist_spray\lv_lru.o: ..\GUI\lvgl\src\misc\../lv_conf_internal.h
+mist_spray\lv_lru.o: F:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+mist_spray\lv_lru.o: ..\GUI\lvgl\src\misc\../lv_conf_kconfig.h
+mist_spray\lv_lru.o: ..\GUI\lvgl\src\misc\../../../lv_conf.h
+mist_spray\lv_lru.o: ..\GUI\lvgl\src\misc\lv_types.h
+mist_spray\lv_lru.o: F:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
+mist_spray\lv_lru.o: ..\GUI\lvgl\src\misc\lv_math.h
+mist_spray\lv_lru.o: ..\GUI\lvgl\src\misc\lv_mem.h
+mist_spray\lv_lru.o: F:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+mist_spray\lv_lru.o: ..\GUI\lvgl\src\misc\lv_assert.h
+mist_spray\lv_lru.o: ..\GUI\lvgl\src\misc\lv_log.h
