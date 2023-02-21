@@ -35,27 +35,16 @@
 #include "w25q64.h"
 #include "hx711.h"
 #include "cJSON_user.h"
+#include "lcd.h"
+#include "lcd_init.h"
+#include "ui.h"
+#include "lvgl.h"
+#include "lv_port_disp.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-uint8_t readUid[5]; 
 
-//��ȡ���ţ������ݻ���ɹ���ȡ�����ž��˳� ,��һ���ǻص����ܺ���
-uint8_t readCard(uint8_t *readUid,void(*funCallBack)(void))
-{
-	uint8_t Temp[5];
-	if (PCD_Request(0x52, Temp) == 0)
-	{
-		if (PCD_Anticoll(readUid) == 0)
-		{
-			if(funCallBack!=NULL)
-				funCallBack();
-			return 0;
-		}	
-	}
-	return 1;
-}
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -75,16 +64,18 @@ osThreadId startTaskHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
-//�����ź������?
-SemaphoreHandle_t MutexSemaphore;	//�����ź���
+//?????????????
+SemaphoreHandle_t MutexSemaphore;	//?????????
 
 osThreadId BC260YTaskHandle;
 osThreadId WorkTaskHandle;
 osThreadId RC522STaskHandle;
+osThreadId GUITaskHandle;
 
 void BC260Y_task(void const * argument );
 void work_task(void const * argument );
 void RC522Stask(void const * argument);
+void GUI_task(void const * argument);
 
 /* USER CODE END FunctionPrototypes */
 
@@ -115,7 +106,7 @@ void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackTy
   */
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
-		//���������ź���
+		//?????????????
 	MutexSemaphore=xSemaphoreCreateMutex();
 
   /* USER CODE END Init */
@@ -143,16 +134,19 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
-    osThreadDef( WorkTask, work_task, osPriorityNormal, 0, 256);
+    osThreadDef( WorkTask, work_task, osPriorityBelowNormal, 0, 256);
    WorkTaskHandle = osThreadCreate(osThread( WorkTask), NULL);
 
 	  osThreadDef(RC522STask, RC522Stask, osPriorityNormal, 0, 256);
   RC522STaskHandle = osThreadCreate(osThread(RC522STask), NULL);
-	
-	  osThreadDef( BC260YTask, BC260Y_task, osPriorityHigh, 0, 256);
+
+
+
+	  osThreadDef( BC260YTask, BC260Y_task, osPriorityHigh, 0, 512);
    BC260YTaskHandle = osThreadCreate(osThread( BC260YTask), NULL);
 	 
-
+	 osThreadDef( GUITask, GUI_task, osPriorityAboveNormal, 0, 512);
+   GUITaskHandle = osThreadCreate(osThread( GUITask), NULL);
 
   /* USER CODE END RTOS_THREADS */
 

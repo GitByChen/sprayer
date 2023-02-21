@@ -31,6 +31,11 @@
 #include "rc522s.h"
 #include "w25q64.h"
 #include "BC260Y.h"
+#include "lcd_init.h"
+#include "lcd.h"
+#include "lvgl.h"
+#include "lv_conf.h"
+#include "lv_port_disp.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -102,13 +107,13 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM6_Init();
   MX_SPI1_Init();
+  MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
-	MFRC_Init();				//RC260模块初始�?
+	MFRC_Init();				//RC260模块初始�??
 	PCD_Reset();				//RC260复位
 	BSP_W25Qx_Init();
 	Flash_Data_Init();
   /* USER CODE END 2 */
-  MX_IWDG_Init();
 
   /* Call init function for freertos objects (in freertos.c) */
   MX_FREERTOS_Init();
@@ -215,7 +220,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     {
       Send_timing_wakeup=0;
     }
-    if(Pcd_Massage_Flag.Pcd_Read_Flag==0 && Pcd_Massage_Flag.Have_A_Card==PCD_OK) //�?测到卡并且没有读卡才计时
+    if(Pcd_Massage_Flag.Pcd_Read_Flag==0 && Pcd_Massage_Flag.Have_A_Card==PCD_OK) //�??测到卡并且没有读卡才计时
     {
       readCard_delay++;
     }
@@ -223,6 +228,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     HAL_RTC_GetDate(&hrtc, &GetData, RTC_FORMAT_BIN);	//获取日期
 
   }
+//	lv_tick_inc(1);
   /* USER CODE END Callback 1 */
 }
 

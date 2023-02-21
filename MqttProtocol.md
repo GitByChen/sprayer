@@ -1,4 +1,29 @@
 [TOC]
+## 设备绑定
+
+- 设备绑定
+
+##### 请求Topic
+- `ljrh/nebulizer/{deviceSn}/bind`
+- `QOS:0`
+``` 
+    deviceSn:当前设备sn号
+``` 
+
+##### 参数
+
+|参数名|必选|类型|说明|
+|:----    |:---|:----- |-----   |
+|sn |是  |String |设备sn   |
+|timestamp |是  |long |时间戳   ||
+
+##### 请求示例
+```json
+{"sn":"MPN22E4040395690P","timestamp":1670393433838}
+```
+
+
+
 ## 液重差异上报
 
 - 液重差异上报
@@ -14,11 +39,12 @@
 
 |参数名|必选|类型|说明|
 |:----    |:---|:----- |-----   |
-|sn |是  |String |设备sn   ||
+|sn |是  |String |设备sn   |
+|timestamp |是  |long |时间戳   ||
 
 ##### 请求示例
 ```json
-{"sn":"MPN22E4040395690P"}
+{"sn":"MPN22E4040395690P","timestamp":"1670393433838"}
 ```
 
 
@@ -146,6 +172,7 @@
 |deviceImei |是  |string | 设备IMEI号    |
 |bindFlag |是  |int | 设备是否绑定 1:是  0:否    |
 |mainStatus |是  |int | 是否启用 1:是  0:否 |
+|weight |是  |int |  液体重量 |
 |timeStamp |是  |long| 时间戳||
 
 ##### 请求示例
@@ -155,7 +182,8 @@
 	"deviceImei":"860387066315086",
 	"bindFlag":1,
 	"mainStatus":1,
-	"timeStamp":1670384066
+	"timestamp":1670384066,
+    "weight":480
 }
  
 ```

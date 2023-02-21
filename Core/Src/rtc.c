@@ -21,7 +21,7 @@
 #include "rtc.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "time.h"
 /* USER CODE END 0 */
 
 RTC_HandleTypeDef hrtc;
@@ -57,12 +57,12 @@ void MX_RTC_Init(void)
   }
 
   /* USER CODE BEGIN Check_RTC_BKUP */
-	/*检查后备区域是否写入数据*/
+	/*锟斤拷锟斤拷锟斤拷锟斤拷锟角凤拷写锟斤拷锟斤拷锟斤拷*/
   if(HAL_RTCEx_BKUPRead(&hrtc,RTC_BKP_DR1)==0x12)
   {
     return ;
   }
-  else HAL_RTCEx_BKUPWrite(&hrtc,RTC_BKP_DR1,0x12);//写入标志位,表示RTC时间配置好，防止重置时间
+  else HAL_RTCEx_BKUPWrite(&hrtc,RTC_BKP_DR1,0x12);//写锟斤拷锟街疚?,锟斤拷示RTC时锟斤拷锟斤拷锟矫好ｏ拷锟斤拷止锟斤拷锟斤拷时锟斤拷
 
   /* USER CODE END Check_RTC_BKUP */
 
