@@ -60,9 +60,9 @@ void Uart_task(void)
                     printf("k=%d\r\n",i);
 					HX711_Massage.K=((((HX711_VAVDD)/i)*HX711_GAIN)*HX711_24BIT)/HX711_BASE_VDD;      //计算转换的K值
                     HX711_Massage.K/=HX711_K_VALUE;
-                //    Pcd_Massage_Flag.Pcd_Read_Flag=0;
-                //    Pcd_Massage_Flag.Pcd_Write_Flag=0;
-                //    Pcd_Massage_Flag.Card_Modal=0;
+                    Pcd_Massage_Flag.Pcd_Read_Flag=0;
+                    Pcd_Massage_Flag.Pcd_Write_Flag=0;
+                    Pcd_Massage_Flag.Card_Modal=0;
                     // memset(&work_time,0,sizeof(work_time));//每次删除操作后都要复位重新判断
                     //Get_Weight();
 
@@ -80,9 +80,9 @@ void Uart_task(void)
                 }
                 else if(strstr((const char*)buffer,"set_card_val")!=0)
 				{
-                //     Pcd_Massage_Flag.Pcd_Read_Flag=0;
-                //     Pcd_Massage_Flag.Pcd_Write_Flag=0;
-                //    Pcd_Massage_Flag.Card_Modal=1;
+                     Pcd_Massage_Flag.Pcd_Read_Flag=0;
+                     Pcd_Massage_Flag.Pcd_Write_Flag=0;
+                    Pcd_Massage_Flag.Card_Modal=1;
                     memset(&work_time,0,sizeof(work_time));//每次删除操作后都要复位重新判断
                 }                
 				else if(strstr((const char*)buffer,"arder")!=0)

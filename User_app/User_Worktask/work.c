@@ -4,24 +4,24 @@
 #include "main.h"
 #include "tim.h"
 #include "usart.h"
-#include "rtc.h"
 #include "work.h"
+#include "cJSON_user.h"
+#include "RC522S.h"
+#include "time.h"
+#include "ui.h"
+
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
-#include "cJSON_user.h"
-#include "RC522S.h"
-#include "time.h"
-//»¥³âĞÅºÅÁ¿¾ä±ú
-extern SemaphoreHandle_t MutexSemaphore;	//»¥³âĞÅºÅÁ¿
 
-//_calendar_obj calendar;//Ê±ÖÓ½á¹¹Ìå 
-_work_time work_time={0,0,0,0,0,0,0}; 		//´æ·ÅÊ±¼äºÏ²¢ºóµÄ×Ö·û£¬ÓÃÓÚÓëCjsonÊı¾İ±È½Ï  
-extern	RTC_DateTypeDef GetData;    //ÈÕÆÚ
-extern	RTC_TimeTypeDef GetTime;    //Ê±¼ä
+//äº’æ–¥ä¿¡å·é‡å¥æŸ„
+extern SemaphoreHandle_t MutexSemaphore;	//äº’æ–¥ä¿¡å·é‡
 
-/*Ê±¼ä´ÁÉú³É£¬µ¥Î»£ºÃë*/
+//_calendar_obj calendar;//æ—¶é’Ÿç»“æ„ä½“ 
+_work_time work_time={0,0,0,0,0,0,0}; 		//å­˜æ”¾æ—¶é—´åˆå¹¶åçš„å­—ç¬¦ï¼Œç”¨äºä¸Cjsonæ•°æ®æ¯”è¾ƒ  
+extern	RTC_DateTypeDef GetData;    //æ—¥æœŸ
+extern	RTC_TimeTypeDef GetTime;    //æ—¶é—´
 int32_t time_to_timestamp(void)
 {
 	struct tm stm;
@@ -34,13 +34,11 @@ int32_t time_to_timestamp(void)
 	stm.tm_sec	= GetTime.Seconds;		
 	return mktime(&stm);
 }
-
-/*get_time_ms:´Ë·½·¨ºÏ²¢³öÀ´µÄ×Ö·û´®,ÔËĞĞÊ±¼ä¾ÃÁË»á³öÏÖÂÒÂë*/
 char * get_time_ms(void){
 
 //struct tm tm_new;
 
-char * time_str = NULL,*time_stemp={"%d%03d"};
+char * time_str = NULL,*time_stemp={"%d000"};
 u16 time_str_len = 14;
 
 	struct tm stm;
@@ -57,29 +55,29 @@ time_t now = mktime(&stm);
 time_str = malloc(time_str_len);
 memset(time_str, 0, time_str_len);
 
-sprintf(time_str,time_stemp,now,0);
+sprintf(time_str,time_stemp,now);
 
 //snprintf(time_str, time_str_len, "%d000\r\n", now);
-printf("stm=%d,time_str=%s",now,time_str);		//´Ë·½·¨ºÏ²¢³öÀ´µÄ×Ö·û´®Ê±¼ä¾ÃÁË»á³öÏÖÂÒÂë
+printf("stm=%d,time_str=%s",now,time_str);
 return time_str;
 
 }
 /*											 
 u8 const table_week[12]={0,3,3,6,1,4,6,2,5,0,3,5}; //???????????	  
 
-//»ñµÃÏÖÔÚÊÇĞÇÆÚ¼¸
-//¹¦ÄÜÃèÊö:ÊäÈë¹«ÀúÈÕÆÚµÃµ½ĞÇÆÚ(Ö»ÔÊĞí1901-2099Äê)
-//ÊäÈë²ÎÊı£º¹«ÀúÄêÔÂÈÕ 
-//·µ»ØÖµ£ºĞÇÆÚºÅ																						 
+//è·å¾—ç°åœ¨æ˜¯æ˜ŸæœŸå‡ 
+//åŠŸèƒ½æè¿°:è¾“å…¥å…¬å†æ—¥æœŸå¾—åˆ°æ˜ŸæœŸ(åªå…è®¸1901-2099å¹´)
+//è¾“å…¥å‚æ•°ï¼šå…¬å†å¹´æœˆæ—¥ 
+//è¿”å›å€¼ï¼šæ˜ŸæœŸå·																						 
 u8 RTC_Get_Week(u16 year,u8 month,u8 day)
 {	
 	u16 temp2;
 	u8 yearH,yearL;
 	
 	yearH=year/100;	yearL=year%100; 
-	// Èç¹ûÎª21ÊÀ¼Í,Äê·İÊı¼Ó100  
+	// å¦‚æœä¸º21ä¸–çºª,å¹´ä»½æ•°åŠ 100  
 	if (yearH>19)yearL+=100;
-	// Ëù¹ıÈòÄêÊıÖ»Ëã1900ÄêÖ®ºóµÄ 
+	// æ‰€è¿‡é—°å¹´æ•°åªç®—1900å¹´ä¹‹åçš„ 
 	temp2=yearL+yearL/4;
 	temp2=temp2%7; 
 	temp2=temp2+day+table_week[month-1];
@@ -92,18 +90,18 @@ void work_task(void const * argument )
 	static u8 minute_interval_Cheak=0,minute_Cheak=0;
 	for( ; ; ) 
 	{	
-	//	xSemaphoreTake(MutexSemaphore,portMAX_DELAY);		//»ñÈ¡»¥³âĞÅºÅÁ¿
-	//HAL_RTC_GetTime(&hrtc, &GetTime, RTC_FORMAT_BIN);	//»ñÈ¡Ê±¼ä
-    //HAL_RTC_GetDate(&hrtc, &GetData, RTC_FORMAT_BIN);	//»ñÈ¡ÈÕÆÚ
-	//		calendar.week=RTC_Get_Week(GetData.Year+2000,GetData.Month,GetData.Date);//»ñÈ¡ĞÇÆÚ
+//		xSemaphoreTake(MutexSemaphore,portMAX_DELAY);		//è·å–äº’æ–¥ä¿¡å·é‡
+//	HAL_RTC_GetTime(&hrtc, &GetTime, RTC_FORMAT_BIN);	//è·å–æ—¶é—´
+//  HAL_RTC_GetDate(&hrtc, &GetData, RTC_FORMAT_BIN);	//è·å–æ—¥æœŸ
+	//		calendar.week=RTC_Get_Week(GetData.Year+2000,GetData.Month,GetData.Date);//è·å–æ˜ŸæœŸ
 	//	printf("week=%d\r\n",GetData.WeekDay);
-//	printf("%d-%d-%d %d:%d:%d\n",GetData.Year,GetData.Month,GetData.Date,GetTime.Hours,GetTime.Minutes,GetTime.Seconds);//Êä³öÄÖÁåÊ±¼ä
+//	printf("%d-%d-%d %d:%d:%d\n",GetData.Year,GetData.Month,GetData.Date,GetTime.Hours,GetTime.Minutes,GetTime.Seconds);//è¾“å‡ºé—¹é“ƒæ—¶é—´
 		if(Pcd_Massage_Flag.Have_A_Card==PCD_OK)
 		{
-			if((work_time.work_time_flag==0 && GetTime.Seconds<=30 && minute_Cheak==0) )	//Ã¿Ìì0µã¼ì²éÊÇ·ñÓĞ¹¤×÷×é¹¤×÷
+			if((work_time.work_time_flag==0 && GetTime.Seconds<=30 && minute_Cheak==0) )	//æ¯å¤©0ç‚¹æ£€æŸ¥æ˜¯å¦æœ‰å·¥ä½œç»„å·¥ä½œ
 			{
-				minute_Cheak=1;		//Ã¿·ÖÖÓ¼ì²éÒ»´ÎÍê³É
-				work_time.which_working_time=0;//¶Ô¼ÇÂ¼Öµ½øĞĞÇåÁã
+				minute_Cheak=1;		//æ¯åˆ†é’Ÿæ£€æŸ¥ä¸€æ¬¡å®Œæˆ
+				work_time.which_working_time=0;//å¯¹è®°å½•å€¼è¿›è¡Œæ¸…é›¶
 				while(work_time.which_working_time<Cjson_Buf.size)
 				{	
 					if(GetData.WeekDay>=Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].week_start 
@@ -117,15 +115,16 @@ void work_task(void const * argument )
 								if(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].status==1 && work_time.working_once==0)
 								{
 									work_time.work_time_flag=1;
+									ui_event_cb=run_static;  //è§¦å‘ä¸€æ¬¡äº‹ä»¶
 									work_time.working_flag=0;
-									printf("ÔÚµÚ%d¸ö¹¤×÷×é¹¤×÷\r\n",work_time.which_working_time);
+									printf("åœ¨ç¬¬%dä¸ªå·¥ä½œç»„å·¥ä½œ\r\n",work_time.which_working_time);
 									break;
 								}
 								else
 								{
 									work_time.work_time_flag=0;
 									work_time.working_once=0;
-									work_time.which_working_time++;	//¼ÇÂ¼ÄÄ¸ö¹¤×÷×éÔÚ¹¤×÷
+									work_time.which_working_time++;	//è®°å½•å“ªä¸ªå·¥ä½œç»„åœ¨å·¥ä½œ
 								}														
 							
 						}
@@ -136,35 +135,35 @@ void work_task(void const * argument )
 							{
 								work_time.work_time_flag=1;
 								work_time.working_flag=0;
-								printf("ÔÚµÚ%d¸ö¹¤×÷×é¹¤×÷\r\n",work_time.which_working_time);
+								printf("åœ¨ç¬¬%dä¸ªå·¥ä½œç»„å·¥ä½œ\r\n",work_time.which_working_time);
 								break;
 							}
 							else
 							{
 								work_time.work_time_flag=0;
 								work_time.working_once=0;
-								work_time.which_working_time++;	//¼ÇÂ¼ÄÄ¸ö¹¤×÷×éÔÚ¹¤×÷
+								work_time.which_working_time++;	//è®°å½•å“ªä¸ªå·¥ä½œç»„åœ¨å·¥ä½œ
 							}														
 						}
 						else
 						{
 							work_time.work_time_flag=0;
 							work_time.working_once=0;
-							work_time.which_working_time++;	//¼ÇÂ¼ÄÄ¸ö¹¤×÷×éÔÚ¹¤×÷
+							work_time.which_working_time++;	//è®°å½•å“ªä¸ªå·¥ä½œç»„åœ¨å·¥ä½œ
 						}
 					}
 					else
 					{
 						work_time.work_time_flag=0;
 						work_time.working_once=0;
-						work_time.which_working_time++;	//¼ÇÂ¼ÄÄ¸ö¹¤×÷×éÔÚ¹¤×÷
+						work_time.which_working_time++;	//è®°å½•å“ªä¸ªå·¥ä½œç»„åœ¨å·¥ä½œ
 					}
 
 				}
 
 				if(work_time.work_time_flag!=1)
 				{
-					work_time.which_working_time=0xff;	//Ã»ÓĞ¹¤×÷×é·ûºÏ
+					work_time.which_working_time=0xff;	//æ²¡æœ‰å·¥ä½œç»„ç¬¦åˆ
 				}
 
 			}
@@ -173,54 +172,63 @@ void work_task(void const * argument )
 				minute_Cheak=0;
 			}
 								
-			if(work_time.work_time_flag==1 && GetTime.Seconds<40 && minute_interval_Cheak==0)//Ã¿·ÖÖÓÅĞ¶ÏÒ»´Î
+			if(work_time.work_time_flag==1 && GetTime.Seconds<40 && minute_interval_Cheak==0)//æ¯åˆ†é’Ÿåˆ¤æ–­ä¸€æ¬¡
 			{
 				minute_interval_Cheak=1;
-				//printf("%d-%d-%d %d:%d:%d\n",GetData.Year,GetData.Month,GetData.Date,GetTime.Hours,GetTime.Minutes,GetTime.Seconds);//Êä³öÄÖÁåÊ±¼ä					
+				//printf("%d-%d-%d %d:%d:%d\n",GetData.Year,GetData.Month,GetData.Date,GetTime.Hours,GetTime.Minutes,GetTime.Seconds);//è¾“å‡ºé—¹é“ƒæ—¶é—´					
 					if(GetData.WeekDay>=Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].week_start 
 						&& GetData.WeekDay<=Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].week_end)
 					{
 						if(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].once_task==1  )
 						{	
 							if(work_time.working_once==1){
-								memset(&work_time,0,sizeof(work_time));//Èç¹ûÊ±¼ä¹ıÁË £¬¸´Î»ÖØĞÂÅĞ¶Ï						
+								memset(&work_time,0,sizeof(work_time));//å¦‚æœæ—¶é—´è¿‡äº† ï¼Œå¤ä½é‡æ–°åˆ¤æ–­
+								ui_event_cb=run_static; //è§¦å‘ä¸€æ¬¡å·¥ä½œçŠ¶æ€äº‹ä»¶						
 							}												
 							
 						}
 						else if((GetTime.Hours*60 +GetTime.Minutes)<(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_start_hour*60 +Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_start_min) || 
 								(GetTime.Hours*60 +GetTime.Minutes)>(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_end_hour *60 +Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_end_min))
 							{
-								if(work_time.working_flag==0 ||work_time.working_flag==3)			//Èç¹ûÏÖÔÚÊÇ¼ä¸ôÊ±¼äÄÚ»òÕß¹ıÁËÊ±¼äÒ²ÒªµÈ±¾´Î¹¤×÷Íê³ÉºóÔÙ¸´Î»
-									memset(&work_time,0,sizeof(work_time));//Èç¹ûÊ±¼ä¹ıÁË £¬¸´Î»ÖØĞÂÅĞ¶Ï
+								if(work_time.working_flag==0 ||work_time.working_flag==3)			//å¦‚æœç°åœ¨æ˜¯é—´éš”æ—¶é—´å†…æˆ–è€…è¿‡äº†æ—¶é—´ä¹Ÿè¦ç­‰æœ¬æ¬¡å·¥ä½œå®Œæˆåå†å¤ä½
+								{
+									memset(&work_time,0,sizeof(work_time));//å¦‚æœæ—¶é—´è¿‡äº† ï¼Œå¤ä½é‡æ–°åˆ¤æ–­
+									ui_event_cb=run_static; //è§¦å‘ä¸€æ¬¡å·¥ä½œçŠ¶æ€äº‹ä»¶	
+								}	
 							}
 					}
 					else
 					{
-						if(work_time.working_flag==0||work_time.working_flag==3)	//¹ıÁËÊ±¼äÒ²ÒªµÈ±¾´Î¹¤×÷Íê³ÉºóÔÙ¸´Î»
-							memset(&work_time,0,sizeof(work_time));//Ê±¼ä¹ıÁË £¬¸´Î»ÖØĞÂÅĞ¶Ï
+						if(work_time.working_flag==0||work_time.working_flag==3)	//è¿‡äº†æ—¶é—´ä¹Ÿè¦ç­‰æœ¬æ¬¡å·¥ä½œå®Œæˆåå†å¤ä½
+						{
+							ui_event_cb=run_static; //è§¦å‘ä¸€æ¬¡å·¥ä½œçŠ¶æ€äº‹ä»¶	
+							memset(&work_time,0,sizeof(work_time));//å¦‚æœæ—¶é—´è¿‡äº† ï¼Œå¤ä½é‡æ–°åˆ¤æ–­
+						}	
 					}
 
 				if(work_time.work_time_flag==1)
 				{
-					if(work_time.working_flag==3 && work_time.working_once==0)		//¹¤×÷Íê³É¼ÆÊ±ÏÂÒ»´Î¹¤×÷,Ö»ÓĞ¹¤×÷Íê²¢ÇÒ²»ÊÇ²»ÊÇµ¥´ÎÈÎÎñ²Å¼ÆÊı
+					if(work_time.working_flag==3 && work_time.working_once==0)		//å·¥ä½œå®Œæˆè®¡æ—¶ä¸‹ä¸€æ¬¡å·¥ä½œ,åªæœ‰å·¥ä½œå®Œå¹¶ä¸”ä¸æ˜¯ä¸æ˜¯å•æ¬¡ä»»åŠ¡æ‰è®¡æ•°
 					{
 						if((work_time.working_interval_time)>=Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].interval_time)
 						{
 							work_time.working_flag=0;
 							work_time.working_interval_time=0;
+							ui_event_cb=NextRunning_Reflash;//è§¦å‘æ›´æ–°è¿›åº¦æ¡äº‹ä»¶
 						}
 						else
 						{
 							work_time.working_interval_time++;
+							ui_event_cb=NextRunning_Reflash;//è§¦å‘æ›´æ–°è¿›åº¦æ¡äº‹ä»¶
 						}
 						
 					}
 
-					if(work_time.working_flag==0 )  //ÔÚ¹¤×÷Ê±¼äÄÚ£¬²¢È·ÈÏ´Ë¹¤×÷×éÎªÆôÓÃ×´Ì¬
+					if(work_time.working_flag==0 )  //åœ¨å·¥ä½œæ—¶é—´å†…ï¼Œå¹¶ç¡®è®¤æ­¤å·¥ä½œç»„ä¸ºå¯ç”¨çŠ¶æ€
 					{
-						work_time.working_flag=1;		//Ê±¼ä¶Îµ½ÁË£¬¹¤×÷±êÖ¾Î»ÖÃ1
-						//Pcd_Massage_Flag.Pcd_Read_Flag=0; 			//¹¤×÷¿ªÊ¼£¬Çå³ı¶Á¿¨±êÖ¾Î»£¬½øĞĞ¶Á¿¨
-						//Pcd_Massage_Flag.Pcd_Write_Flag=1;				//¹¤×÷£¬¸üĞÂĞ´¿¨±êÖ¾Î»£¬È¥Ğ´¿¨
+						work_time.working_flag=1;		//æ—¶é—´æ®µåˆ°äº†ï¼Œå·¥ä½œæ ‡å¿—ä½ç½®1
+						//Pcd_Massage_Flag.Pcd_Read_Flag=0; 			//å·¥ä½œå¼€å§‹ï¼Œæ¸…é™¤è¯»å¡æ ‡å¿—ä½ï¼Œè¿›è¡Œè¯»å¡
+						//Pcd_Massage_Flag.Pcd_Write_Flag=1;				//å·¥ä½œï¼Œæ›´æ–°å†™å¡æ ‡å¿—ä½ï¼Œå»å†™å¡
 					} 
 				}
 			}			
@@ -228,13 +236,13 @@ void work_task(void const * argument )
 			{
 				minute_interval_Cheak=0;
 			}
-			if(work_time.working_flag==1 &&Pcd_Massage_Flag.Pcd_Write_Flag==3) //ÒªÉÏ±¨ÖØÁ¿Íê³ÉÔÙ¹¤×÷
+			if(work_time.working_flag==1 &&Pcd_Massage_Flag.Pcd_Write_Flag==3) //è¦ä¸ŠæŠ¥é‡é‡å®Œæˆå†å·¥ä½œ
 			{
 					work_time.working_flag=2;
-					work_time.working_interval_time=1;			//¹¤×÷¿ªÊ¼£¬Í¬Ê±¿ªÊ¼¼ÆÊı¼ä¸ôÊ±¼ä
-					work_time.working_time=0;					//¹¤×÷Ê±¼ä¼ÆÊıÇåÁã£¬¿ªÊ¼¹¤×÷
+					work_time.working_interval_time=1;			//å·¥ä½œå¼€å§‹ï¼ŒåŒæ—¶å¼€å§‹è®¡æ•°é—´éš”æ—¶é—´
+					work_time.working_time=0;					//å·¥ä½œæ—¶é—´è®¡æ•°æ¸…é›¶ï¼Œå¼€å§‹å·¥ä½œ
 					Motor_Working(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].gears);
-				HAL_UART_Transmit(&huart3,(u8*)"¹¤×÷!", strlen("¹¤×÷!"), 100);    //
+				HAL_UART_Transmit(&huart3,(u8*)"å·¥ä½œ!", strlen("å·¥ä½œ!"), 100);    //
 			}
 			else if(work_time.working_flag==2)
 			{
@@ -243,10 +251,10 @@ void work_task(void const * argument )
 					work_time.working_flag=3;					//					
 					work_time.working_time=0;
 										
-					Pcd_Massage_Flag.Pcd_Read_Flag=0; 			//¹¤×÷¿ªÊ¼£¬Çå³ı¶Á¿¨±êÖ¾Î»£¬½øĞĞ¶Á¿¨
-					Pcd_Massage_Flag.Pcd_Write_Flag=0;				//¹¤×÷£¬½«Ğ´¿¨±êÖ¾Î»ÇåÁã
+					Pcd_Massage_Flag.Pcd_Read_Flag=0; 			//å·¥ä½œå¼€å§‹ï¼Œæ¸…é™¤è¯»å¡æ ‡å¿—ä½ï¼Œè¿›è¡Œè¯»å¡
+					Pcd_Massage_Flag.Pcd_Write_Flag=0;				//å·¥ä½œï¼Œå°†å†™å¡æ ‡å¿—ä½æ¸…é›¶
 					Motor_Working(0);		//
-					if(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].once_task==1)	//Èç¹ûÊÇµ¥´Î¹¤×÷£¬ÖÃÎ»±êÖ¾Î»Îª1
+					if(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].once_task==1)	//å¦‚æœæ˜¯å•æ¬¡å·¥ä½œï¼Œç½®ä½æ ‡å¿—ä½ä¸º1
 					{
 						work_time.working_once=1;	
 					}
@@ -254,7 +262,7 @@ void work_task(void const * argument )
 					{
 						work_time.working_once=0;	
 					}
-					HAL_UART_Transmit(&huart3,(u8*)"½áÊø¹¤×÷!", strlen("½áÊø¹¤×÷!"), 100);    
+					HAL_UART_Transmit(&huart3,(u8*)"ç»“æŸå·¥ä½œ!", strlen("ç»“æŸå·¥ä½œ!"), 100);    
 				}
 				else
 				{
@@ -264,36 +272,36 @@ void work_task(void const * argument )
 		}
 		else 
 		{
-			memset(&work_time,0,sizeof(work_time));//Èç¹ûÃ»ÓĞ¿¨ £¬¸´Î»ÖØĞÂÅĞ¶Ï
+			memset(&work_time,0,sizeof(work_time));//å¦‚æœæ²¡æœ‰å¡ ï¼Œå¤ä½é‡æ–°åˆ¤æ–­
 
 		}
 		/*switch (calendar.week)
 		{
 		case 1:
-			work_time.week="ĞÇÆÚÒ»";
+			work_time.week="æ˜ŸæœŸä¸€";
 			break;
 		case 2:
-			work_time.week="ĞÇÆÚ¶ş";
+			work_time.week="æ˜ŸæœŸäºŒ";
 			break;
 		case 3:
-			work_time.week="ĞÇÆÚÈı";
+			work_time.week="æ˜ŸæœŸä¸‰";
 			break;
 		case 4:
-			work_time.week="ĞÇÆÚËÄ";
+			work_time.week="æ˜ŸæœŸå››";
 			break;
 		case 5:
-			work_time.week="ĞÇÆÚÎå";
+			work_time.week="æ˜ŸæœŸäº”";
 			break;
 		case 6:
-			work_time.week="ĞÇÆÚÁù";
+			work_time.week="æ˜ŸæœŸå…­";
 			break;
 		case 7:
-			work_time.week="ĞÇÆÚÈÕ";
+			work_time.week="æ˜ŸæœŸæ—¥";
 			break;
 		default:
 			break;
 		}*/		
-//		xSemaphoreGive(MutexSemaphore);					//ÊÍ·ÅĞÅºÅÁ¿
+//		xSemaphoreGive(MutexSemaphore);					//é‡Šæ”¾ä¿¡å·é‡
 		vTaskDelay(1000);
 	}
 	

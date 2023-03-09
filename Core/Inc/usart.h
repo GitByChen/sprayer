@@ -40,14 +40,14 @@ extern UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN Private defines */
 #define UART1_REC_LEN  			300  	//定义最大接收字节数 400
-#define UART2_REC_LEN  			300  	//定义最大接收字节数 400
+//#define UART2_REC_LEN  			300  	//定义最大接收字节数 400
 #define UART3_REC_LEN  			300  	//定义最大接收字节数 400
 
 extern uint8_t UART1_RX_Buffer[UART1_REC_LEN];     //接收缓冲,最大USART_REC_LEN个字节.
 extern uint16_t UART1_RX_STA;
 
-extern uint8_t UART2_RX_Buffer[UART2_REC_LEN];     //接收缓冲,最大USART_REC_LEN个字节.
-extern uint16_t UART2_RX_STA;
+//extern uint8_t UART2_RX_Buffer[UART2_REC_LEN];     //接收缓冲,最大USART_REC_LEN个字节.
+//extern uint16_t UART2_RX_STA;
 
 extern uint8_t UART3_RX_Buffer[UART3_REC_LEN];     //接收缓冲,最大USART_REC_LEN个字节.
 extern uint16_t UART3_RX_STA;

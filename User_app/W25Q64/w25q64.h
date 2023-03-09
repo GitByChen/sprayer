@@ -126,14 +126,17 @@ extern SPI_HandleTypeDef hspi1;
 #define W25Qx_BUSY          ((uint8_t)0x02)
 #define W25Qx_TIMEOUT				((uint8_t)0x03)
 
-#define CJSON_DATA_FLASH_BASE 	0x00	//CJSON���ݴ���׵�ַ	
+#define CJSON_DATA_FLASH_BASE 	0x00	//CJSON数据存放首地址	
 #define CJSON_DATA_SIZE         sizeof(Cjson_Buf)
 
-#define HX711_WEIGHT_DATA_FLASH_BASE    CJSON_DATA_SIZE+100          //ȥƤֵ��ŵ�ַ
-#define HX711_WEIGHT_DATA_SIZE          sizeof(HX711_Massage.Base_Weight_Value)  //ֵռ���ڴ��С
+#define HX711_WEIGHT_DATA_FLASH_BASE    CJSON_DATA_FLASH_BASE+CJSON_DATA_SIZE+10          //去皮值存放地址
+#define HX711_WEIGHT_DATA_SIZE          sizeof(HX711_Massage.Base_Weight_Value)  //值占用内存大小
 
-#define BindFlag_DATA_FLASH_BASE    HX711_WEIGHT_DATA_FLASH_BASE+10           //ȥƤֵ��ŵ�ַ
-#define BindFlag_DATA_SIZE          sizeof(BC260_Massage.bindFlag)  //ֵռ���ڴ��С
+#define BindFlag_DATA_FLASH_BASE    HX711_WEIGHT_DATA_FLASH_BASE+HX711_WEIGHT_DATA_SIZE+10           //设备绑定状态存放地址
+#define BindFlag_DATA_SIZE          sizeof(BC260_Massage.bindFlag)  //值占用内存大小
+
+#define MQTT_SN_DATA_FLASH_BASE    BindFlag_DATA_FLASH_BASE+BindFlag_DATA_SIZE+10           //SN号存放地址
+#define MQTT_SN_DATA_SIZE          sizeof(BC260_Massage.BC260_SN)  //值占用内存大小
 
 uint8_t BSP_W25Qx_Init(void);
 static void	BSP_W25Qx_Reset(void);

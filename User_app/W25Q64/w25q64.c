@@ -295,12 +295,12 @@ uint8_t BSP_W25Qx_Erase_Chip(void)
 	return W25Qx_OK;
 }
 
-//Ğ´SPI FLASH  
-//ÔÚÖ¸¶¨µØÖ·¿ªÊ¼Ğ´ÈëÖ¸¶¨³¤¶ÈµÄÊı¾İ
-//¸Ãº¯Êı´ø²Á³ı²Ù×÷!
-//pBuffer:Êı¾İ´æ´¢Çø
-//WriteAddr:¿ªÊ¼Ğ´ÈëµÄµØÖ·(24bit)						
-//NumByteToWrite:ÒªĞ´ÈëµÄ×Ö½ÚÊı(×î´ó65535)   
+//å†™SPI FLASH  
+//åœ¨æŒ‡å®šåœ°å€å¼€å§‹å†™å…¥æŒ‡å®šé•¿åº¦çš„æ•°æ®
+//è¯¥å‡½æ•°å¸¦æ“¦é™¤æ“ä½œ!
+//pBuffer:æ•°æ®å­˜å‚¨åŒº
+//WriteAddr:å¼€å§‹å†™å…¥çš„åœ°å€(24bit)						
+//NumByteToWrite:è¦å†™å…¥çš„å­—èŠ‚æ•°(æœ€å¤§65535)   
 u8 W25QXX_BUFFER[4096];		 
 void W25QXX_Write(u8* pBuffer,u32 WriteAddr,u16 NumByteToWrite)   
 { 
@@ -310,46 +310,46 @@ void W25QXX_Write(u8* pBuffer,u32 WriteAddr,u16 NumByteToWrite)
  	u16 i;    
 	u8 * W25QXX_BUF;
   W25QXX_BUF=W25QXX_BUFFER;	     
- 	secpos=WriteAddr/4096;//ÉÈÇøµØÖ·  
-	secoff=WriteAddr%4096;//ÔÚÉÈÇøÄÚµÄÆ«ÒÆ
-	secremain=4096-secoff;//ÉÈÇøÊ£Óà¿Õ¼ä´óĞ¡   
- 	//printf("ad:%X,nb:%X\r\n",WriteAddr,NumByteToWrite);//²âÊÔÓÃ
- 	if(NumByteToWrite<=secremain)secremain=NumByteToWrite;//²»´óÓÚ4096¸ö×Ö½Ú
+ 	secpos=WriteAddr/4096;//æ‰‡åŒºåœ°å€  
+	secoff=WriteAddr%4096;//åœ¨æ‰‡åŒºå†…çš„åç§»
+	secremain=4096-secoff;//æ‰‡åŒºå‰©ä½™ç©ºé—´å¤§å°   
+ 	//printf("ad:%X,nb:%X\r\n",WriteAddr,NumByteToWrite);//æµ‹è¯•ç”¨
+ 	if(NumByteToWrite<=secremain)secremain=NumByteToWrite;//ä¸å¤§äº4096ä¸ªå­—èŠ‚
 	while(1) 
 	{	
-		BSP_W25Qx_Read(W25QXX_BUF,secpos*4096,4096);//¶Á³öÕû¸öÉÈÇøµÄÄÚÈİ
+		BSP_W25Qx_Read(W25QXX_BUF,secpos*4096,4096);//è¯»å‡ºæ•´ä¸ªæ‰‡åŒºçš„å†…å®¹
 		
-		for(i=0;i<secremain;i++)//Ğ£ÑéÊı¾İ
+		for(i=0;i<secremain;i++)//æ ¡éªŒæ•°æ®
 		{
-			if(W25QXX_BUF[secoff+i]!=0XFF)break;//ĞèÒª²Á³ı  	  
+			if(W25QXX_BUF[secoff+i]!=0XFF)break;//éœ€è¦æ“¦é™¤  	  
 		}
-		if(i<secremain)//ĞèÒª²Á³ı
+		if(i<secremain)//éœ€è¦æ“¦é™¤
 		{
-			BSP_W25Qx_Erase_Block(secpos);		//²Á³ıÕâ¸öÉÈÇø
-			for(i=0;i<secremain;i++)	   		//¸´ÖÆ
+			BSP_W25Qx_Erase_Block(secpos);		//æ“¦é™¤è¿™ä¸ªæ‰‡åŒº
+			for(i=0;i<secremain;i++)	   		//å¤åˆ¶
 			{
 				W25QXX_BUF[i+secoff]=pBuffer[i];	  
 			}
-			BSP_W25Qx_Write(W25QXX_BUF,secpos*4096,4096);//Ğ´ÈëÕû¸öÉÈÇø 
-//			break;//Ğ´Èë½áÊøÁË			
+			BSP_W25Qx_Write(W25QXX_BUF,secpos*4096,4096);//å†™å…¥æ•´ä¸ªæ‰‡åŒº 
+//			break;//å†™å…¥ç»“æŸäº†			
 		}else
-		BSP_W25Qx_Write(pBuffer,WriteAddr,secremain);//Ğ´ÒÑ¾­²Á³ıÁËµÄ,Ö±½ÓĞ´ÈëÉÈÇøÊ£ÓàÇø¼ä. 				   
-		if(NumByteToWrite==secremain)break;//Ğ´Èë½áÊøÁË
-		else//Ğ´ÈëÎ´½áÊø
+		BSP_W25Qx_Write(pBuffer,WriteAddr,secremain);//å†™å·²ç»æ“¦é™¤äº†çš„,ç›´æ¥å†™å…¥æ‰‡åŒºå‰©ä½™åŒºé—´. 				   
+		if(NumByteToWrite==secremain)break;//å†™å…¥ç»“æŸäº†
+		else//å†™å…¥æœªç»“æŸ
 		{
-			secpos++;//ÉÈÇøµØÖ·Ôö1
-			secoff=0;//Æ«ÒÆÎ»ÖÃÎª0 	 
+			secpos++;//æ‰‡åŒºåœ°å€å¢1
+			secoff=0;//åç§»ä½ç½®ä¸º0 	 
 
-		   	pBuffer+=secremain;  				//Ö¸ÕëÆ«ÒÆ
-			WriteAddr+=secremain;				//Ğ´µØÖ·Æ«ÒÆ	   
-		   	NumByteToWrite-=secremain;			//×Ö½ÚÊıµİ¼õ
-			if(NumByteToWrite>4096)secremain=4096;//ÏÂÒ»¸öÉÈÇø»¹ÊÇĞ´²»Íê
-			else secremain=NumByteToWrite;		//ÏÂÒ»¸öÉÈÇø¿ÉÒÔĞ´ÍêÁË
+		   	pBuffer+=secremain;  				//æŒ‡é’ˆåç§»
+			WriteAddr+=secremain;				//å†™åœ°å€åç§»	   
+		   	NumByteToWrite-=secremain;			//å­—èŠ‚æ•°é€’å‡
+			if(NumByteToWrite>4096)secremain=4096;//ä¸‹ä¸€ä¸ªæ‰‡åŒºè¿˜æ˜¯å†™ä¸å®Œ
+			else secremain=NumByteToWrite;		//ä¸‹ä¸€ä¸ªæ‰‡åŒºå¯ä»¥å†™å®Œäº†
 		}	 
 	};	 
 }
 
-//¶ÁÈ¡flashÄÚÊı¾İ½øĞĞ³õÊ¼»¯ÉèÖÃ
+//è¯»å–flashå†…æ•°æ®è¿›è¡Œåˆå§‹åŒ–è®¾ç½®
 void Flash_Data_Init(void)
 {   
 	//printf("size=%d\r\n",CJSON_DATA_SIZE);
@@ -358,7 +358,7 @@ void Flash_Data_Init(void)
 	 {
 		memset(&Cjson_Buf,0,sizeof(Cjson_Buf));
 	 }	 
-	  memset(&work_time,0,sizeof(work_time));//´Ë´¦³õÊ¼»¯½á¹¹ÌåÎª±ØÒª²Ù×÷£¬·ñÔò½á¹¹ÌåÎŞ·¨Õı³£³õÊ¼»¯
+	  memset(&work_time,0,sizeof(work_time));//æ­¤å¤„åˆå§‹åŒ–ç»“æ„ä½“ä¸ºå¿…è¦æ“ä½œï¼Œå¦åˆ™ç»“æ„ä½“æ— æ³•æ­£å¸¸åˆå§‹åŒ–
 
 	BSP_W25Qx_Read(HX711_Massage.Base_value_Buf,HX711_WEIGHT_DATA_FLASH_BASE,HX711_WEIGHT_DATA_SIZE);
 	HX711_Massage.Base_Weight_Value=(u32)HX711_Massage.Base_value_Buf[0]<<24|
@@ -373,6 +373,11 @@ void Flash_Data_Init(void)
 	if(BC260_Massage.bindFlag>1)
 	{
 		BC260_Massage.bindFlag=0;
+	}
+	BSP_W25Qx_Read((u8*)&BC260_Massage.BC260_SN,MQTT_SN_DATA_FLASH_BASE,MQTT_SN_DATA_SIZE);
+	if(strstr(BC260_Massage.BC260_SN,"MPN")==0)
+	{
+		memset(&BC260_Massage.BC260_SN,0,sizeof(BC260_Massage.BC260_SN));
 	}
  }
 

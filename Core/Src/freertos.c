@@ -145,7 +145,7 @@ void MX_FREERTOS_Init(void) {
 	  osThreadDef( BC260YTask, BC260Y_task, osPriorityHigh, 0, 512);
    BC260YTaskHandle = osThreadCreate(osThread( BC260YTask), NULL);
 	 
-	 osThreadDef( GUITask, GUI_task, osPriorityAboveNormal, 0, 512);
+	 osThreadDef( GUITask, GUI_task, osPriorityAboveNormal, 0, 4*1024);
    GUITaskHandle = osThreadCreate(osThread( GUITask), NULL);
 
   /* USER CODE END RTOS_THREADS */
@@ -166,7 +166,7 @@ void StartDefaultTask(void const * argument)
   for(;;)
   {
 		Uart_task();
-		HAL_IWDG_Refresh(&hiwdg);
+//		HAL_IWDG_Refresh(&hiwdg);
 		osDelay(500);
   }
   /* USER CODE END StartDefaultTask */

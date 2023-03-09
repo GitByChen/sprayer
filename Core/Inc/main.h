@@ -103,14 +103,14 @@ void Error_Handler(void);
 #define LCD_RST_GPIO_Port GPIOB
 #define LCD_BL_Pin GPIO_PIN_10
 #define LCD_BL_GPIO_Port GPIOB
-#define SPI_NSS_Pin GPIO_PIN_15
-#define SPI_NSS_GPIO_Port GPIOA
+#define SPI3_CS_Pin GPIO_PIN_15
+#define SPI3_CS_GPIO_Port GPIOA
 #define SPI_MOSI_Pin GPIO_PIN_12
 #define SPI_MOSI_GPIO_Port GPIOC
-#define SPI_SCK_Pin GPIO_PIN_3
-#define SPI_SCK_GPIO_Port GPIOB
-#define SPI_MISO_Pin GPIO_PIN_4
-#define SPI_MISO_GPIO_Port GPIOB
+#define SPI3_SCK_Pin GPIO_PIN_3
+#define SPI3_SCK_GPIO_Port GPIOB
+#define SPI_DC_Pin GPIO_PIN_4
+#define SPI_DC_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

@@ -5,20 +5,15 @@
 
 typedef struct 
 {
-   char BC260_UART_BUF[300];
-   char AT_ORDER_BUF[250];
-   char AT_MQTT_SUBJECT[70];        //存放拼接后的设备任务设置的订阅主题
-   char AT_MQTT_SUB_CLEAR_TASK[70]; //存放拼接后的清空设备定时任务的订阅主题
-   char AT_MQTT_SUB_BIND_TASK[70];  //存放拼接后得请求绑定设备的订阅主题
-   char AT_MATT_SUB_RTC_TASK[70];      //存放拼接后的时间同步任务
-   char AT_MQTT_PUB[70];            //存放拼接后的广播主题
-   char AT_MQTT_PUB_WEIGHT[70];      //存放拼接后的上报重量不匹配的广播主题
+   char BC260_UART_BUF[280];
+   char AT_ORDER_BUF[220];
    char BC260_IMEI[20];         //存放IMEI号
    char BC260_SN[20];            //存放SN号
    u8   BC260Y_OPEN_FLAG;     //是否开机
    u8   BC260Y_CONNECT_FLAG;  //是否成功连接服务器
    u8 bindFlag;               //是否绑定设备
    u8  send_error;            //用于在重量不合法时是否需要上报， 0：不需要，1：需要
+   int CSG_val;                //网络信号值
 }BC260_MASSAGE;
 extern BC260_MASSAGE BC260_Massage;
 
@@ -34,15 +29,15 @@ extern BC260_MASSAGE BC260_Massage;
 #define AT_MQTT_QMTOPEN         "AT+QMTOPEN=0,\"120.24.149.179\",1883"   //接入服务器
 #define AT_MQTT_QMTCONN         "AT+QMTCONN=0,\"%s\",\"nebulizer\",\"ljrh1234\""           //发送模块ID
 
-#define AT_MQTT_PUB_TIMING_REPORT          "ljrh/nebulizer/%s/deviceStatus" // 定时广播的主题
-#define AT_MQTT_PUB_WEIGHT_REPORT           "ljrh/nebulizer/%s/weightIncrease" //上报重量不匹配的广播主题
-#define AT_MQTT_PUB_TIMING_WAKEUP          "BC260Y" //我叫什么 在广播
+#define AT_MQTT_PUB_TIMING_REPORT          "AT+QMTPUB=0,0,0,0,\"ljrh/nebulizer/%s/deviceStatus\"" // 定时广播的主题
+#define AT_MQTT_PUB_WEIGHT_REPORT           "AT+QMTPUB=0,0,0,0,\"ljrh/nebulizer/%s/weightIncrease\"" //上报重量不匹配的广播主题
+#define AT_MQTT_PUB_TIMING_WAKEUP          "AT+QMTPUB=0,0,0,0,\"%s/BC260Y\"" //我叫什么 在广播
 
 #define AT_MQTT_QMTPUB11          ">" // 广播正常字符
-#define TimerTask                  "ljrh/nebulizer/%s/task"   //工作时间任务
-#define TimerClearTask             "ljrh/nebulizer/%s/clearTask"   //工作时间清零任务
-#define RtcTask                     "ljrh/nebulizer/%s/syncDate"   //实时时间同步任务
-#define BindTask                    "ljrh/nebulizer/%s/bind"        //请求绑定设备
+#define TimerTask                  "AT+QMTSUB=0,1,\"ljrh/nebulizer/%s/task\",0"   //工作时间任务
+#define TimerClearTask             "AT+QMTSUB=0,1,\"ljrh/nebulizer/%s/clearTask\",0"   //工作时间清零任务
+#define RtcTask                     "AT+QMTSUB=0,1,\"ljrh/nebulizer/%s/syncDate\",0"   //实时时间同步任务
+#define BindTask                    "AT+QMTSUB=0,1,\"ljrh/nebulizer/%s/bind\",0"        //请求绑定设备
 #define AT_MQTT_QMTSUB              "AT+QMTSUB=0,1"         //订阅
 #define AT_MQTT_QMTPUB              "AT+QMTPUB=0,0,0,0"     //广播
 #define AT_MQTT_QMTUNS              "AT+QMTUNS=0,1"         //退订
@@ -65,11 +60,12 @@ extern BC260_MASSAGE BC260_Massage;
 #define AT_Order_ERROE           "ERROR"        //指令发送失败
 #define AT_RESP_CIMI            "460"           //查询卡号返回
 #define AT_RESP_CGATT           "+CGATT"       //查询注册网络情况返回
-#define AT_RESP_CSQ             "+CSQ"
+#define AT_RESP_CSQ             "AT+CSQ"         //查询网络信号
 #define AT_RESP_INIT            "+IP:"          //判断4G模块是否启动
 #define AT_ORDER                "AT+"           //AT指令
 #define AT_RESP_CGSN             "AT+CGSN="
 #define AT_Order_CFG             "AT+QMTCFG=\"session\",0,0"
+#define AT_Order_QMTCFG          "AT+QMTCFG=\"keepalive\",0,0"
 #define AT_MQTT_RESP_QMTOPEN    "+QMTOPEN: 0,0"     //接入指令返回字符
 #define AT_MQTT_RESP_QMTCONN    "+QMTCONN: 0,0,0"   //登录指令返回状态
 #define AT_MQTT_RESP_MQTSUB     "+QMTSUB: 0,1"  //   订阅成功
@@ -94,11 +90,8 @@ u8 MQTT_QMTOPEN(void);     //连接服务器
 u8 MQTT_QMTCONN(void);     //登录服务器
 void connect_mqtt(void);
 
-u8 MQTT_Subscribe(char *QMTSUB,u8 QOS);  //订阅
-u8 MQTT_UnSubscribe(char *QMTSUB,u8 QOS) ;         //退订
+u8 MQTT_Subscribe(char *QMTSUB);  //订阅
 u8 MQTT_Publish(const char *str, char *sub);//广播
-void MQTT_reply(char *subject,char *resp);
-void MQTT_joint(void);//订阅/广播主题拼接
 void TimerSub(void); //定时广播
 
 #endif

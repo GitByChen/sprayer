@@ -162,6 +162,8 @@ void disp_disable_update(void)
     disp_flush_enabled = false;
 }
 
+#define LCD_TOTAL_BUF_SIZE	(320*240*2)  // 153600
+#define LCD_BUFFER_SIZE (1536*4)
 /*Flush the content of the internal buffer the specific area on the display
  *You can use DMA or any hardware acceleration to do this operation in the background but
  *'lv_disp_flush_ready()' has to be called when finished.*/
@@ -169,21 +171,77 @@ static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_colo
 {
     if(disp_flush_enabled) {
         /*The most simple case (but also the slowest) to put all pixels to the screen one-by-one*/
-
+        #if 1
         int32_t x;
         int32_t y;
-				LCD_Address_Set(area->x1,area->y1,area->x2,area->y2);//ÉèÖÃÏÔÊ¾·¶Î§
+        	uint16_t tmp ;
+			uint16_t H_Num=0;
+			uint16_t H_Buf_Size=(area->x2-area->x1 +1)*2;		//åˆ—
+			uint8_t Disp_Str_Buff[H_Buf_Size];	
+
+			LCD_Address_Set(area->x1,area->y1,area->x2,area->y2);//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Î§
         for(y = area->y1; y <= area->y2; y++) {
             for(x = area->x1; x <= area->x2; x++) {
                 /*Put a pixel to the display. For example:*/
                 /*put_px(x, y, *color_p)*/
-							// LCD_DrawPoint((uint16_t)x, (uint16_t)y, (uint16_t)color_p->full); // Ð§ÂÊ¼«µÍ£¬¿¨¶ÙÑÏÖØ
-							LCD_WR_DATA(color_p->full);
-                color_p++;
-            }
-        }
-    }
+							// LCD_DrawPoint((uint16_t)x, (uint16_t)y, (uint16_t)color_p->full); // Ð§ï¿½Ê¼ï¿½ï¿½Í£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+				//LCD_WR_DATA(color_p->full);
+                //color_p++;
 
+                tmp=color_p->full ;
+                Disp_Str_Buff[H_Num*2]=(tmp>>8);
+                Disp_Str_Buff[H_Num*2+1]=tmp;
+                H_Num++;
+                color_p++;
+							
+            }
+        
+            LCD_WR_DATA_DMA(Disp_Str_Buff,H_Buf_Size);
+            H_Num=0;
+        }
+				#else
+				
+			uint8_t LCD_BUFFER[LCD_BUFFER_SIZE];
+			uint32_t size = 0, size_remain = 0;	
+			size = (area->x2 - area->x1 + 1) * (area->y2 - area->y1 + 1) * 2;
+			
+			if(size > LCD_BUFFER_SIZE)
+			{
+        size_remain = size - LCD_BUFFER_SIZE;
+        size = LCD_BUFFER_SIZE;
+			}
+			
+				LCD_Address_Set(area->x1,area->y1,area->x2,area->y2);//è®¾ç½®æ˜¾ç¤ºèŒƒå›´
+			while(1)
+			{
+				uint16_t i = 0;
+				uint16_t tmp ;
+        for(i = 0; i < size / 2; i++)
+        {
+					tmp = color_p->full;
+          LCD_BUFFER[2 * i] = tmp >> 8;
+          LCD_BUFFER[2 * i + 1] = tmp;
+					color_p++;
+        }
+
+				//LCD_DCX_HIGH;
+				//LCD_WriteDataBuffer(LCD_BUFFER, size);
+			LCD_WR_DATA_DMA(LCD_BUFFER,size);
+        if(size_remain == 0)
+            break;
+
+        if(size_remain > LCD_BUFFER_SIZE)
+        {
+            size_remain = size_remain - LCD_BUFFER_SIZE;
+        }
+        else
+        {
+            size = size_remain;
+            size_remain = 0;
+        }
+			}
+			#endif
+    }
     /*IMPORTANT!!!
      *Inform the graphics library that you are ready with the flushing*/
     lv_disp_flush_ready(disp_drv);

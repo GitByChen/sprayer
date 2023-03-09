@@ -13,10 +13,12 @@ extern "C" {
 #include "lvgl.h"
 #include "lv_font.h"
 extern lv_obj_t * ui_Screen1;
+extern lv_obj_t * qc_module ;
 extern lv_obj_t * ui_BG;
-extern lv_obj_t * ui_LableWiFi3;
-extern lv_obj_t * ui_LableWiFi2;
-extern lv_obj_t * ui_LableWiFi1;
+extern lv_obj_t * ui_LableWiFi;
+//extern lv_obj_t * ui_LableWiFi3;
+//extern lv_obj_t * ui_LableWiFi2;
+//extern lv_obj_t * ui_LableWiFi1;
 extern lv_obj_t * ui_LableTime;
 extern lv_obj_t * ui_LableData;
 extern lv_obj_t * ui_LableWeek;
@@ -51,7 +53,7 @@ void DisplaySwitch(int val);
 #define USER_MistSpray        "\xEE\x98\xAC" /*58924, 0xE62C*/
 
 void ui_init(void);
-
+void qc_init(void);
 #ifdef __cplusplus
 } /*extern "C"*/
 #endif

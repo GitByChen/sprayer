@@ -22,13 +22,15 @@
 
 /* USER CODE BEGIN 0 */
 #include "stdio.h"
+#include "string.h"
 uint8_t UART1_RX_Buffer[UART1_REC_LEN]={0};
-uint8_t UART2_RX_Buffer[UART2_REC_LEN]={0};
+//uint8_t UART2_RX_Buffer[UART2_REC_LEN]={0};
 uint8_t UART3_RX_Buffer[UART3_REC_LEN]={0};
 
 uint16_t UART1_RX_STA=0;    // 第15bit表示一帧数据接收完成，第14~0位表示接收到的数据量
-uint16_t UART2_RX_STA=0;    // 第15bit表示一帧数据接收完成，第14~0位表示接收到的数据量
+//uint16_t UART2_RX_STA=0;    // 第15bit表示一帧数据接收完成，第14~0位表示接收到的数据量
 uint16_t UART3_RX_STA=0;    // 第15bit表示一帧数据接收完成，第14~0位表示接收到的数据量
+
 
 uint8_t Res=0;
 uint8_t uart2_rxbuf=0;
@@ -47,7 +49,7 @@ struct __FILE  {
     /* standard output using printf() for debugging, no file handling */ 
     /* is required. */ 
 }; 
-/* FILE is typedef’ d in stdio.h. */ 
+/* FILE is typedef?? d in stdio.h. */ 
 FILE __stdout;
 /**
   * 函数功能: 重定向c库函数printf到DEBUG_USARTx
@@ -269,8 +271,8 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     HAL_NVIC_SetPriority(USART2_IRQn, 6, 0);
     HAL_NVIC_EnableIRQ(USART2_IRQn);
   /* USER CODE BEGIN USART2_MspInit 1 */
-		__HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);              // 使能接收中断
-	__HAL_UART_ENABLE_IT(&huart2, UART_IT_IDLE);              // 使能空闲中断
+//		__HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);              // 使能接收中断
+//	__HAL_UART_ENABLE_IT(&huart2, UART_IT_IDLE);              // 使能空闲中断
 //		__HAL_UART_ENABLE_IT(&huart2,UART_IT_ERR);
 
 //		HAL_UART_Receive_IT(&huart2,UART2_RX_Buffer, 1);
@@ -401,9 +403,15 @@ void USART1_IRQHandler(void)
 	if(__HAL_UART_GET_FLAG(&huart1, UART_FLAG_RXNE) != RESET)  // 空闲中断标记被置位
 	{	
    // __HAL_UART_DISABLE_IT(&huart1, UART_IT_RXNE);
-		//if(!(	UART1_RX_STA & 0x8000))
+	//	if(!(	UART1_RX_STA & 0x8000))
 		{
+      
 			Res=huart1.Instance->RDR;
+      if(Res=='+')
+      {
+        memset(&UART1_RX_Buffer,0,sizeof(UART1_RX_Buffer));				//清除接收
+        UART1_RX_STA=0;
+      }
 			UART1_RX_Buffer[UART1_RX_STA++]=Res;
 			__HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);              // 使能接收中断
 			__HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);              // 使能空闲中断
@@ -425,33 +433,33 @@ void USART1_IRQHandler(void)
 //			}
 }
 
-void USART2_IRQHandler(void)
-{
-	u8 Res;
-	if(__HAL_UART_GET_FLAG(&huart2, UART_FLAG_RXNE) != RESET)  // 空闲中断标记被置位
-	{	
-		if(!(	UART2_RX_STA & 0x8000))
-		{
-			Res=huart2.Instance->RDR;
-			UART2_RX_Buffer[UART2_RX_STA++]=Res;
-			__HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);              // 使能接收中断
-			__HAL_UART_ENABLE_IT(&huart2, UART_IT_IDLE);              // 使能空闲中断
-		}
-	}
-		if(__HAL_UART_GET_FLAG(&huart2, UART_FLAG_IDLE) != RESET)  // 空闲中断标记被置位
-	{
-			UART2_RX_STA|=0x8000;
-			__HAL_UART_CLEAR_IT(&huart2,UART_CLEAR_IDLEF);
-			__HAL_UART_DISABLE_IT(&huart2,UART_IT_IDLE);
+//void USART2_IRQHandler(void)
+//{
+//	u8 Res;
+//	if(__HAL_UART_GET_FLAG(&huart2, UART_FLAG_RXNE) != RESET)  // 空闲中断标记被置位
+//	{	
+//		if(!(	UART2_RX_STA & 0x8000))
+//		{
+//			Res=huart2.Instance->RDR;
+//			UART2_RX_Buffer[UART2_RX_STA++]=Res;
+//			__HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);              // 使能接收中断
+//			__HAL_UART_ENABLE_IT(&huart2, UART_IT_IDLE);              // 使能空闲中断
+//		}
+//	}
+//		if(__HAL_UART_GET_FLAG(&huart2, UART_FLAG_IDLE) != RESET)  // 空闲中断标记被置位
+//	{
+//			UART2_RX_STA|=0x8000;
+//			__HAL_UART_CLEAR_IT(&huart2,UART_CLEAR_IDLEF);
+//			__HAL_UART_DISABLE_IT(&huart2,UART_IT_IDLE);
 
-	}
+//	}
 //			if(__HAL_UART_GET_FLAG(&huart2, UART_FLAG_ORE) != RESET)  // 空闲中断标记被置位
 //			{
 //				__HAL_UART_CLEAR_OREFLAG(&huart2);
 //				__HAL_UART_ENABLE_IT(&huart2, UART_IT_RXNE);              // 使能接收中断
 
 //			}
-}
+//}
 
 void USART3_IRQHandler(void)
 {
