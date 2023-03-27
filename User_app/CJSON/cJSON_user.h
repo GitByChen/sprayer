@@ -11,61 +11,61 @@
 #define CHEAK_TASK              "cheak_task"
 #define SET_RTC_TIME            "set_rtc_time"
 
-#define SN          "sn"            //Éè±¸±àºÅ
-#define IMEI        "imei"          //Éè±¸IMEIºÅ
-#define NO          "no"            //ÈÎÎñ±àºÅ
-#define TIMESTAMP   "timestemp"     //Ê±¼ä´Á
-#define TASK        "task"          //ÈÎÎñ
-#define WEEK        "week"          //ÖÜ
-#define START       "start"         //¿ªÊ¼Ê±¼ä mm:dd
-#define END         "end"           //½áÊøÊ±¼ä mm:dd
-#define ECHO        "echo"          //ÖØ¸´Ê±¼ä  µ¥Î»£ºmin
-#define LEVEL       "level"         //¹¤×÷µÈ¼¶
-#define TIME        "time"          //¹¤×÷Ê±¼ä
-#define STATUS      "status"        //ÈÎÎñ×´Ì¬ (ÊÇ·ñÆôÓÃ)
-#define FLAG        "flag"          //±êÖ¾Î» ("±êÊ¶Î» 1.ĞÂÔö;2.ĞŞ¸Ä;3.É¾³ı;")
-#define SINGLE      "single"        //µ¥´ÎÈÎÎñ
+#define SN          "sn"            //è®¾å¤‡ç¼–å·
+#define IMEI        "imei"          //è®¾å¤‡IMEIå·
+#define NO          "no"            //ä»»åŠ¡ç¼–å·
+#define TIMESTAMP   "timestemp"     //æ—¶é—´æˆ³
+#define TASK        "task"          //ä»»åŠ¡
+#define WEEK        "week"          //å‘¨
+#define START       "start"         //å¼€å§‹æ—¶é—´ mm:dd
+#define END         "end"           //ç»“æŸæ—¶é—´ mm:dd
+#define ECHO        "echo"          //é‡å¤æ—¶é—´  å•ä½ï¼šmin
+#define LEVEL       "level"         //å·¥ä½œç­‰çº§
+#define TIME        "time"          //å·¥ä½œæ—¶é—´
+#define STATUS      "status"        //ä»»åŠ¡çŠ¶æ€ (æ˜¯å¦å¯ç”¨)
+#define FLAG        "flag"          //æ ‡å¿—ä½ ("æ ‡è¯†ä½ 1.æ–°å¢;2.ä¿®æ”¹;3.åˆ é™¤;")
+#define SINGLE      "single"        //å•æ¬¡ä»»åŠ¡
 
 typedef enum 
 {
-    createTimerTask=1,      //ÈÎÎñÉèÖÃ
-    createRTCTask,          //RTCÊ±¼ä¸üĞÂÉèÖÃ
-    createClearTask,         //ÈÎÎñÇå¿ÕÉèÖÃ
-    createBindTask          //°ó¶¨Éè±¸ÉèÖÃ
+    createTimerTask=1,      //ä»»åŠ¡è®¾ç½®
+    createRTCTask,          //RTCæ—¶é—´æ›´æ–°è®¾ç½®
+    createClearTask,         //ä»»åŠ¡æ¸…ç©ºè®¾ç½®
+    createBindTask          //ç»‘å®šè®¾å¤‡è®¾ç½®
 }TPYE;
 
 //extern enum TPYE CJSON_TASK_TPYE;
 typedef struct{
     
  //   char Task_Buf[200];
-    char task_no[15];           //´æ·ÅÈÎÎñ±àºÅ
-    char timestart[10];        //¿ªÊ¼Ê±¼ä×Ö·û´®
-    char timeend[10];          //½áÊøÊ±¼ä×Ö·û´®
-    u8 week_start;          //ĞÇÆÚ¼¸¿ªÊ¼
-    u8 week_end;            //ĞÇÆÚ¼¸½áÊø
-    u8 time_start_hour;     //½âÎö³öÀ´µÄ¿ªÊ¼Ê±¼ä
+    char task_no[15];           //å­˜æ”¾ä»»åŠ¡ç¼–å·
+    char timestart[10];        //å¼€å§‹æ—¶é—´å­—ç¬¦ä¸²
+    char timeend[10];          //ç»“æŸæ—¶é—´å­—ç¬¦ä¸²
+    u8 week_start;          //æ˜ŸæœŸå‡ å¼€å§‹
+    u8 week_end;            //æ˜ŸæœŸå‡ ç»“æŸ
+    u8 time_start_hour;     //è§£æå‡ºæ¥çš„å¼€å§‹æ—¶é—´
     u8 time_start_min;
-    u8 time_end_hour;       //½âÎö³öÀ´µÄ½áÊøÊ±¼ä
+    u8 time_end_hour;       //è§£æå‡ºæ¥çš„ç»“æŸæ—¶é—´
     u8 time_end_min;
-    u8 status;           //ÊÇ·ñÆôÓÃ
-    u8 once_task;       //ÊÇ·ñµ¥´ÎÈÎÎñ
-    u8 interval_time;   //¹¤×÷¼ä¸ô µ¥Î»£ºmin
-    u8 gears;           //¹¤×÷µµÎ» µ¥Î»£ºmin
-    u16 worktime;       //¹¤×÷Ê±¼ä µ¥Î»£ºs
+    u8 status;           //æ˜¯å¦å¯ç”¨
+    u8 once_task;       //æ˜¯å¦å•æ¬¡ä»»åŠ¡
+    u8 interval_time;   //å·¥ä½œé—´éš” å•ä½ï¼šmin
+    u8 gears;           //å·¥ä½œæ¡£ä½ å•ä½ï¼šmin
+    u16 worktime;       //å·¥ä½œæ—¶é—´ å•ä½ï¼šs
 
 }Cjson_Buffer;
 
 #define CJSON_BUF_LEN           200
 #define CJSON_BUF_DATA_LEN      20 
 typedef struct {
-    u8 size;        //¹¤×÷×é¼ÆÊı
+    u8 size;        //å·¥ä½œç»„è®¡æ•°
     Cjson_Buffer Cjson_Buffer_Data[CJSON_BUF_DATA_LEN];
 }Cjson;
 extern Cjson Cjson_Buf;
 
 void Uart_task(void);
 
-uint8_t ParseStr(const char *JSON,TPYE CJSON_TASK_TPYE);    //JSON:ĞèÒª½âÎöµÄÄÚÈİ£¬type£º½âÎöÀàĞÍ
+uint8_t ParseStr(const char *JSON,TPYE CJSON_TASK_TPYE);    //JSON:éœ€è¦è§£æçš„å†…å®¹ï¼Œtypeï¼šè§£æç±»å‹
 
 #endif
 

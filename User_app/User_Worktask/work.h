@@ -2,44 +2,45 @@
 #define __WORK_H	    
 #include	"stm32l4xx_hal_rtc.h"
 /*
-//Ê±¼ä½á¹¹Ìå
+//æ—¶é—´ç»“æ„ä½“
 typedef struct 
 {
 	u8 hour;
 	u8 min;
 	u8 sec;			
-	//¹«ÀúÈÕÔÂÄêÖÜ
+	//å…¬å†æ—¥æœˆå¹´å‘¨
 	u16 year;
 	u8  month;
 	u8  date;
 	u8  week;		 
 }_calendar_obj;					 
-extern _calendar_obj calendar;	//ÈÕÀú½á¹¹Ìå
+extern _calendar_obj calendar;	//æ—¥å†ç»“æ„ä½“
 */
 typedef struct 
 {	
 	char *week;
 	char *time;
-	u8 work_time_flag;	//ÊÇ·ñÔÚ¹¤×÷Ê±¼ä¶ÎÄÚ
-	u8 working_flag;	//ÊÇ·ñÕıÔÚ¹¤×÷	0:Ã»ÓĞ¹¤×÷£»1£º×¼±¸¹¤×÷£»2£ºÕıÔÚ¹¤×÷£»3£º¹¤×÷Íê³É
-	u8 working_time;	//¹¤×÷Ê±¼ä¼ÆÊı
-	u8 which_working_time;  //¼ÇÂ¼ÊÇÄÄ¸ö¹¤×÷×éÔÚ¹¤×÷
-	u8 working_once;		//µ¥´Î¹¤×÷Íê³É±êÖ¾Î» 0£ºÎ´Íê³É¡£1£ºÒÑÍê³É
-	u16 working_interval_time;	//¹¤×÷¼ä¸ôÊ±¼ä¼ÆÊı
+	u8 work_time_flag;	//æ˜¯å¦åœ¨å·¥ä½œæ—¶é—´æ®µå†…
+	u8 working_flag;	//æ˜¯å¦æ­£åœ¨å·¥ä½œ	0:æ²¡æœ‰å·¥ä½œï¼›1ï¼šå‡†å¤‡å·¥ä½œï¼›2ï¼šæ­£åœ¨å·¥ä½œï¼›3ï¼šå·¥ä½œå®Œæˆ
+	u8 working_time;	//å·¥ä½œæ—¶é—´è®¡æ•°
+	u8 which_working_time;  //è®°å½•æ˜¯å“ªä¸ªå·¥ä½œç»„åœ¨å·¥ä½œ
+	u8 working_once;		//å•æ¬¡å·¥ä½œå®Œæˆæ ‡å¿—ä½ 0ï¼šæœªå®Œæˆã€‚1ï¼šå·²å®Œæˆ
+	u16 working_interval_time;	//å·¥ä½œé—´éš”æ—¶é—´è®¡æ•°
 }_work_time;
 extern _work_time work_time; 
 	
-extern u8 const mon_table[12];	//ÔÂ·İÈÕÆÚÊı¾İ±í
-void Disp_Time(u8 x,u8 y,u8 size);//ÔÚÖÆ¶¨Î»ÖÃ¿ªÊ¼ÏÔÊ¾Ê±¼ä
-void Disp_Week(u8 x,u8 y,u8 size,u8 lang);//ÔÚÖ¸¶¨Î»ÖÃÏÔÊ¾ĞÇÆÚ
-u8 RTC_Init(void);        //³õÊ¼»¯RTC,·µ»Ø0,Ê§°Ü;1,³É¹¦;
-u8 Is_Leap_Year(u16 year);//Æ½Äê,ÈòÄêÅĞ¶Ï
+extern u8 const mon_table[12];	//æœˆä»½æ—¥æœŸæ•°æ®è¡¨
+void Disp_Time(u8 x,u8 y,u8 size);//åœ¨åˆ¶å®šä½ç½®å¼€å§‹æ˜¾ç¤ºæ—¶é—´
+void Disp_Week(u8 x,u8 y,u8 size,u8 lang);//åœ¨æŒ‡å®šä½ç½®æ˜¾ç¤ºæ˜ŸæœŸ
+u8 RTC_Init(void);        //åˆå§‹åŒ–RTC,è¿”å›0,å¤±è´¥;1,æˆåŠŸ;
+u8 Is_Leap_Year(u16 year);//å¹³å¹´,é—°å¹´åˆ¤æ–­
 u8 RTC_Alarm_Set(u16 syear,u8 smon,u8 sday,u8 hour,u8 min,u8 sec);
-u8 RTC_Get(void);         //¸üĞÂÊ±¼ä   
+u8 RTC_Get(void);         //æ›´æ–°æ—¶é—´   
 u8 RTC_Get_Week(u16 year,u8 month,u8 day);
-u8 RTC_Set(u16 syear,u8 smon,u8 sday,u8 hour,u8 min,u8 sec);//ÉèÖÃÊ±¼ä
-int32_t time_to_timestamp(void);		/*Ê±¼ä´ÁÉú³É£¬µ¥Î»£ºÃë*/
-char * get_time_ms(void);				/*Ê±¼ä´ÁÉú³É£¬µ¥Î»£ººÁÃë*/
+u8 RTC_Set(u16 syear,u8 smon,u8 sday,u8 hour,u8 min,u8 sec);//è®¾ç½®æ—¶é—´
+void Rtc_Task_Init(void);
+int32_t time_to_timestamp(void);
+char * get_time_ms(void);
 #endif
 
 

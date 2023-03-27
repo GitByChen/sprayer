@@ -3,14 +3,24 @@
 
 #include "main.h"
 
-#define USE_HORIZONTAL 2 //ÉèÖÃºáÆÁ»òÕßÊúÆÁÏÔÊ¾ 0»ò1ÎªÊúÆÁ 2»ò3ÎªºáÆÁ
+#define USE_HORIZONTAL 2 //è®¾ç½®æ¨ªå±æˆ–è€…ç«–å±æ˜¾ç¤º 0æˆ–1ä¸ºç«–å± 2æˆ–3ä¸ºæ¨ªå±
 
 
-#define LCD_W 240
-#define LCD_H 320
+#define LCD_W 320
+#define LCD_H 240
 
+// SW_SPI or HW_SPI or HW_SPI_DMA  ï¼ˆHW_SPI_DMAæš‚æ—¶è¿˜ç”¨ä¸äº†ï¼Œç›¸å…³ä»£ç è¿˜æ²¡å†™ï¼‰
+#define HW_SPI_DMA 1
 
-//-----------------LCDï¿½Ë¿Ú¶ï¿½ï¿½ï¿½---------------- 
+//==========================================
+//å®šä¹‰spi 
+//==========================================
+#if (HW_SPI_DMA)
+#define ST7789_LCD_SPI_DMA hspi3
+extern SPI_HandleTypeDef hspi3;
+#endif // HW_SP
+
+//-----------------LCD IOå£æ“ä½œ---------------- 
 #define LCD_CS_Clr()  HAL_GPIO_WritePin(GPIOA,GPIO_PIN_15, GPIO_PIN_SET) //CS		SPI_NSS
 #define LCD_CS_Set()  HAL_GPIO_WritePin(GPIOA,GPIO_PIN_15, GPIO_PIN_RESET)
 
@@ -29,16 +39,13 @@
 #define LCD_BLK_Clr()  HAL_GPIO_WritePin(GPIOB,GPIO_PIN_10, GPIO_PIN_RESET)//BLK LCD_BL
 #define LCD_BLK_Set()  HAL_GPIO_WritePin(GPIOB,GPIO_PIN_10, GPIO_PIN_SET)
 
-
-
-
-void LCD_GPIO_Init(void);//³õÊ¼»¯GPIO
-void LCD_Writ_Bus(u8 dat);//Ä£ÄâSPIÊ±Ğò
-void LCD_WR_DATA8(u8 dat);//Ğ´ÈëÒ»¸ö×Ö½Ú
-void LCD_WR_DATA(u16 dat);//Ğ´ÈëÁ½¸ö×Ö½Ú
-void LCD_WR_REG(u8 dat);//Ğ´ÈëÒ»¸öÖ¸Áî
-void LCD_Address_Set(u16 x1,u16 y1,u16 x2,u16 y2);//ÉèÖÃ×ø±êº¯Êı
-void LCD_Init(void);//LCD³õÊ¼»¯
+void LCD_WR_DATA_DMA(uint8_t *buf,uint32_t buf_size);//å†™å…¥ä¸€ä¸ªæ•°ç»„
+void LCD_Writ_Bus(u8 dat);//æ¨¡æ‹ŸSPIæ—¶åº
+void LCD_WR_DATA8(u8 dat);//å†™å…¥ä¸€ä¸ªå­—èŠ‚
+void LCD_WR_DATA(u16 dat);//å†™å…¥ä¸¤ä¸ªå­—èŠ‚
+void LCD_WR_REG(u8 dat);//å†™å…¥ä¸€ä¸ªæŒ‡ä»¤
+void LCD_Address_Set(u16 x1,u16 y1,u16 x2,u16 y2);//è®¾ç½®åæ ‡å‡½æ•°
+void LCD_Init(void);//LCDåˆå§‹åŒ–
 #endif
 
 

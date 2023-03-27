@@ -36,7 +36,7 @@
 #define LV_USE_BUILTIN_MALLOC 1
 #if LV_USE_BUILTIN_MALLOC
     /*Size of the memory available for `lv_malloc()` in bytes (>= 2kB)*/
-    #define LV_MEM_SIZE (16U * 1024U)          /*[bytes]*/
+    #define LV_MEM_SIZE (14U * 1024U)          /*[bytes]*/
 
     /*Size of the memory expand for `lv_malloc()` in bytes*/
     #define LV_MEM_POOL_EXPAND_SIZE 0
@@ -79,7 +79,7 @@
 /*Use a custom tick source that tells the elapsed time in milliseconds.
  *It removes the need to manually update the tick with `lv_tick_inc()`)*/
  /* 时钟源提供器，如果LV_TICK_CUSTOM==1，那么你就不用lv_tick_inc()提供时钟了 */
-#define LV_TICK_CUSTOM     1
+#define LV_TICK_CUSTOM     0
 #if LV_TICK_CUSTOM
 /* ↓ 这里可以指定时钟源提供器，例如STM32的HAL库的HAL_GetTick() */
 #define LV_TICK_CUSTOM_INCLUDE  "stm32l4xx_hal.h"     /*Header for the system time function*/
@@ -111,7 +111,7 @@
      * and can't be drawn in chunks. */
 
     /*The target buffer size for simple layer chunks.*/
-    #define LV_DRAW_SW_LAYER_SIMPLE_BUF_SIZE          (8 * 1024)   /*[bytes]*/
+    #define LV_DRAW_SW_LAYER_SIMPLE_BUF_SIZE          (16 * 1024)   /*[bytes]*/
 
     /*Used if `LV_DRAW_SW_LAYER_SIMPLE_BUF_SIZE` couldn't be allocated.*/
     #define LV_DRAW_SW_LAYER_SIMPLE_FALLBACK_BUF_SIZE (3 * 1024)    /*[bytes]*/
@@ -486,7 +486,7 @@
     #define LV_USE_CALENDAR_HEADER_DROPDOWN 1
 #endif  /*LV_USE_CALENDAR*/
 
-#define LV_USE_CANVAS     0
+#define LV_USE_CANVAS     1
 
 #define LV_USE_CHART      0
 

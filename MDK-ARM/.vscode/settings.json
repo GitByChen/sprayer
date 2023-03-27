@@ -1,6 +1,13 @@
 {
     "files.associations": {
         "string": "c",
-        "task.h": "c"
+        "task.h": "c",
+        "lcd_init.h": "c",
+        "ui_display.h": "c",
+        "lvgl.h": "c",
+        "limits": "c",
+        "memory": "c",
+        "semphr.h": "c",
+        "freertos.h": "c"
     }
 }

@@ -167,7 +167,7 @@ float Get_Weight(void)
 	if(HX711_Massage.HX711_Weight_Value > HX711_Massage.Base_Weight_Value)			
 	{
 		HX711_Massage.Weight = (HX711_Massage.HX711_Weight_Value-HX711_Massage.Base_Weight_Value)/HX711_Massage.K;
-		HX711_Massage.Write_To_Card_Weight=(u16)((HX711_Massage.Weight*10)+0.5f);		//+0.5 进行四舍五入 
+		HX711_Massage.Write_To_Card_Weight=(u16)((HX711_Massage.Weight)+0.5f);		//+0.5 进行四舍五入 
 		printf("重量值是：%d\r\n",HX711_Massage.Write_To_Card_Weight);
 		 Pcd_Massage_Flag.Pcd_Write_Flag=1;//写标志位置1，将最新的重量写进卡里
 	}

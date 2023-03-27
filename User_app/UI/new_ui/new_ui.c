@@ -162,7 +162,7 @@ void ui_Screen1_screen_init(void)
     lv_obj_set_height(ui_LableWiFi, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_LableWiFi, 280);
     lv_obj_set_y(ui_LableWiFi, 4);
-    lv_label_set_text(ui_LableWiFi, USER_WIFI3);//"	"
+   // lv_label_set_text(ui_LableWiFi, USER_WIFI1);//"	"
     lv_obj_set_style_text_font(ui_LableWiFi, &ui_font_confont16, LV_PART_MAIN | LV_STATE_DEFAULT);
 /*
     ui_LableWiFi2 = lv_label_create(ui_Screen1);

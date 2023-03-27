@@ -61,9 +61,9 @@ extern "C" {
 
 
 /***********************************************************************************
-*								MFRC522Çı¶¯³ÌĞò			        				   *
+*								MFRC522é©±åŠ¨ç¨‹åº			        				   *
 ************************************************************************************/
-/*MFRC522¼Ä´æÆ÷¶¨Òå*/
+/*MFRC522å¯„å­˜å™¨å®šä¹‰*/
 //PAGE0
 #define MFRC_RFU00              	0x00    
 #define MFRC_CommandReg         	0x01    
@@ -87,7 +87,7 @@ extern "C" {
 #define MFRC_TxModeReg             	0x12
 #define MFRC_RxModeReg             	0x13
 #define MFRC_TxControlReg          	0x14
-#define MFRC_TxAutoReg             	0x15 //ÖĞÎÄÊÖ²áÓĞÎó
+#define MFRC_TxAutoReg             	0x15 //ä¸­æ–‡æ‰‹å†Œæœ‰è¯¯
 #define MFRC_TxSelReg              	0x16
 #define MFRC_RxSelReg              	0x17
 #define MFRC_RxThresholdReg        	0x18
@@ -133,28 +133,28 @@ extern "C" {
 #define MFRC_RFU3E                 	0x3E   
 #define MFRC_RFU3F                 	0x3F
 
-/*MFRC522µÄFIFO³¤¶È¶¨Òå*/
+/*MFRC522çš„FIFOé•¿åº¦å®šä¹‰*/
 #define MFRC_FIFO_LENGTH       		64 
 
-/*MFRC522´«ÊäµÄÖ¡³¤¶¨Òå*/
+/*MFRC522ä¼ è¾“çš„å¸§é•¿å®šä¹‰*/
 #define MFRC_MAXRLEN                18                
 
-/*MFRC522ÃüÁî¼¯,ÖĞÎÄÊÖ²áP59*/
-#define MFRC_IDLE              		0x00	//È¡Ïûµ±Ç°ÃüÁîµÄÖ´ĞĞ
-#define MFRC_CALCCRC           		0x03    //¼¤»îCRC¼ÆËã
-#define MFRC_TRANSMIT          		0x04    //·¢ËÍFIFO»º³åÇøÄÚÈİ
-#define MFRC_NOCMDCHANGE            0x07	//ÎŞÃüÁî¸Ä±ä
-#define MFRC_RECEIVE           		0x08    //¼¤»î½ÓÊÕÆ÷½ÓÊÕÊı¾İ
-#define MFRC_TRANSCEIVE        		0x0C    //·¢ËÍ²¢½ÓÊÕÊı¾İ
-#define MFRC_AUTHENT           		0x0E    //Ö´ĞĞMifareÈÏÖ¤(ÑéÖ¤ÃÜÔ¿)
-#define MFRC_RESETPHASE        		0x0F    //¸´Î»MFRC522
+/*MFRC522å‘½ä»¤é›†,ä¸­æ–‡æ‰‹å†ŒP59*/
+#define MFRC_IDLE              		0x00	//å–æ¶ˆå½“å‰å‘½ä»¤çš„æ‰§è¡Œ
+#define MFRC_CALCCRC           		0x03    //æ¿€æ´»CRCè®¡ç®—
+#define MFRC_TRANSMIT          		0x04    //å‘é€FIFOç¼“å†²åŒºå†…å®¹
+#define MFRC_NOCMDCHANGE            0x07	//æ— å‘½ä»¤æ”¹å˜
+#define MFRC_RECEIVE           		0x08    //æ¿€æ´»æ¥æ”¶å™¨æ¥æ”¶æ•°æ®
+#define MFRC_TRANSCEIVE        		0x0C    //å‘é€å¹¶æ¥æ”¶æ•°æ®
+#define MFRC_AUTHENT           		0x0E    //æ‰§è¡ŒMifareè®¤è¯(éªŒè¯å¯†é’¥)
+#define MFRC_RESETPHASE        		0x0F    //å¤ä½MFRC522
 
-/*MFRC522Í¨Ñ¶Ê±·µ»ØµÄ´íÎó´úÂë*/
+/*MFRC522é€šè®¯æ—¶è¿”å›çš„é”™è¯¯ä»£ç */
 #define MFRC_OK                 	(char)0
 #define MFRC_NOTAGERR            	(char)(-1)
 #define MFRC_ERR                	(char)(-2)
 
-/*MFRC522º¯ÊıÉùÃ÷*/
+/*MFRC522å‡½æ•°å£°æ˜*/
 void MFRC_Init(void);
 void MFRC_WriteReg(uint8_t addr, uint8_t data);
 uint8_t MFRC_ReadReg(uint8_t addr);
@@ -166,39 +166,39 @@ char MFRC_CmdFrame(uint8_t cmd, uint8_t *pInData, uint8_t InLenByte, uint8_t *pO
 
 
 /***********************************************************************************
-*							MFRC552ÓëMF1¿¨Í¨Ñ¶½Ó¿Ú³ÌĞò	 		     	     	   *
+*							MFRC552ä¸MF1å¡é€šè®¯æ¥å£ç¨‹åº	 		     	     	   *
 ************************************************************************************/
-/*Mifare1¿¨Æ¬ÃüÁî×Ö*/
-#define PICC_REQIDL           	0x26               	//Ñ°ÌìÏßÇøÄÚÎ´½øÈëĞİÃß×´Ì¬µÄ¿¨
-#define PICC_REQALL           	0x52               	//Ñ°ÌìÏßÇøÄÚÈ«²¿¿¨
-#define PICC_ANTICOLL1        	0x93               	//·À³å×²
-#define PICC_ANTICOLL2        	0x95               	//·À³å×²
-#define PICC_AUTHENT1A        	0x60               	//ÑéÖ¤AÃÜÔ¿
-#define PICC_AUTHENT1B        	0x61               	//ÑéÖ¤BÃÜÔ¿
-#define PICC_READ             	0x30               	//¶Á¿é
-#define PICC_WRITE            	0xA0               	//Ğ´¿é
-#define PICC_DECREMENT        	0xC0               	//¼õÖµ(¿Û³ı)
-#define PICC_INCREMENT        	0xC1               	//ÔöÖµ(³äÖµ)
-#define PICC_TRANSFER         	0xB0               	//×ª´æ(´«ËÍ)
-#define PICC_RESTORE          	0xC2               	//»Ö¸´(ÖØ´¢)
-#define PICC_HALT             	0x50               	//ĞİÃß
+/*Mifare1å¡ç‰‡å‘½ä»¤å­—*/
+#define PICC_REQIDL           	0x26               	//å¯»å¤©çº¿åŒºå†…æœªè¿›å…¥ä¼‘çœ çŠ¶æ€çš„å¡
+#define PICC_REQALL           	0x52               	//å¯»å¤©çº¿åŒºå†…å…¨éƒ¨å¡
+#define PICC_ANTICOLL1        	0x93               	//é˜²å†²æ’
+#define PICC_ANTICOLL2        	0x95               	//é˜²å†²æ’
+#define PICC_AUTHENT1A        	0x60               	//éªŒè¯Aå¯†é’¥
+#define PICC_AUTHENT1B        	0x61               	//éªŒè¯Bå¯†é’¥
+#define PICC_READ             	0x30               	//è¯»å—
+#define PICC_WRITE            	0xA0               	//å†™å—
+#define PICC_DECREMENT        	0xC0               	//å‡å€¼(æ‰£é™¤)
+#define PICC_INCREMENT        	0xC1               	//å¢å€¼(å……å€¼)
+#define PICC_TRANSFER         	0xB0               	//è½¬å­˜(ä¼ é€)
+#define PICC_RESTORE          	0xC2               	//æ¢å¤(é‡å‚¨)
+#define PICC_HALT             	0x50               	//ä¼‘çœ 
 
-/*PCDÍ¨Ñ¶Ê±·µ»ØµÄ´íÎó´úÂë*/
-#define PCD_OK                 	(char)0				//³É¹¦
-#define PCD_NOTAGERR            (char)(-1)			//ÎŞ¿¨
-#define PCD_ERR                	(char)(-2)			//³ö´í
+/*PCDé€šè®¯æ—¶è¿”å›çš„é”™è¯¯ä»£ç */
+#define PCD_OK                 	(char)0				//æˆåŠŸ
+#define PCD_NOTAGERR            (char)(-1)			//æ— å¡
+#define PCD_ERR                	(char)(-2)			//å‡ºé”™
 
-/*PCDº¯ÊıÉùÃ÷*/
+/*PCDå‡½æ•°å£°æ˜*/
 void PCD_Init(void);
 void PCD_Reset(void);
 void PCD_AntennaOn(void);
 void PCD_AntennaOff(void);
-char PCD_Request(uint8_t RequestMode, uint8_t *pCardType);  //Ñ°¿¨£¬²¢·µ»Ø¿¨µÄÀàĞÍ
-char PCD_Anticoll(uint8_t *pSnr);                           //·À³åÍ»,·µ»Ø¿¨ºÅ
-char PCD_Select(uint8_t *pSnr);                             //Ñ¡¿¨
-char PCD_AuthState(uint8_t AuthMode, uint8_t BlockAddr, uint8_t *pKey, uint8_t *pSnr); //ÑéÖ¤ÃÜÂë(ÃÜÂëAºÍÃÜÂëB)   
-char PCD_WriteBlock(uint8_t BlockAddr, uint8_t *pData);   //Ğ´Êı¾İ
-char PCD_ReadBlock(uint8_t BlockAddr, uint8_t *pData);    //¶ÁÊı¾İ
+char PCD_Request(uint8_t RequestMode, uint8_t *pCardType);  //å¯»å¡ï¼Œå¹¶è¿”å›å¡çš„ç±»å‹
+char PCD_Anticoll(uint8_t *pSnr);                           //é˜²å†²çª,è¿”å›å¡å·
+char PCD_Select(uint8_t *pSnr);                             //é€‰å¡
+char PCD_AuthState(uint8_t AuthMode, uint8_t BlockAddr, uint8_t *pKey, uint8_t *pSnr); //éªŒè¯å¯†ç (å¯†ç Aå’Œå¯†ç B)   
+char PCD_WriteBlock(uint8_t BlockAddr, uint8_t *pData);   //å†™æ•°æ®
+char PCD_ReadBlock(uint8_t BlockAddr, uint8_t *pData);    //è¯»æ•°æ®
 char PCD_Value(uint8_t mode, uint8_t BlockAddr, uint8_t *pValue);   
 char PCD_BakValue(uint8_t sourceBlockAddr, uint8_t goalBlockAddr);                                 
 char PCD_Halt(void);
@@ -210,18 +210,18 @@ char WaitCardOff(void);
 
 /* USER CODE BEGIN Private defines */
 typedef struct{
-    u8 Have_A_Card;         //ÊÇ·ñÓĞ¿¨
-    u8 Card_Modal;          //¿¨µÄÄ£Ê½  0£ºÕı³£Ä£Ê½£»1£º×¢Ë®Ä£Ê½    
-    u8 Pcd_Read_Flag;       //0:Ã»ÓĞ¶Á 1£º¶ÁÈ¡ÕıÈ· 2£º¶ÁÈ¡´íÎó
-    u8 Pcd_Write_Flag;      //0:Ã»ÓĞĞ´  1£º×¼±¸Ğ´  2£ºĞ´Íê³É 3:ÉÏ±¨Íê³É
-    u8 Pcd_Legal_Flag;      //Ò©Ë®ºÏ·¨±êÖ¾Î»  1£ººÏ·¨ 2£º²»ºÏ·¨
-    u16 Pcd_Read_Card_Werght; //¶Á³öÀ´µÄÖØÁ¿
-    u32 Pcd_Card_ID;        //¿¨µÄID
+    char Have_A_Card;         //æ˜¯å¦æœ‰å¡
+    u8 Card_Modal;          //å¡çš„æ¨¡å¼  0ï¼šæ­£å¸¸æ¨¡å¼ï¼›1ï¼šæ³¨æ°´æ¨¡å¼    
+    u8 Pcd_Read_Flag;       //0:æ²¡æœ‰è¯» 1ï¼šè¯»å–æ­£ç¡® 2ï¼šè¯»å–é”™è¯¯
+    u8 Pcd_Write_Flag;      //0:æ²¡æœ‰å†™  1ï¼šå‡†å¤‡å†™  2ï¼šå†™å®Œæˆ 3:ä¸ŠæŠ¥å®Œæˆ
+    u8 Pcd_Legal_Flag;      //è¯æ°´åˆæ³•æ ‡å¿—ä½  1ï¼šåˆæ³• 2ï¼šä¸åˆæ³•
+    u16 Pcd_Read_Card_Werght; //è¯»å‡ºæ¥çš„é‡é‡
+    u32 Pcd_Card_ID;        //å¡çš„ID
 }Pcd_Massage;
 extern Pcd_Massage Pcd_Massage_Flag;
 
 
-//ºÍRC522Í¨Ñ¶Ê±·µ»ØµÄM1¿¨×´Ì¬
+//å’ŒRC522é€šè®¯æ—¶è¿”å›çš„M1å¡çŠ¶æ€
 #define 	MI_OK                 0xff
 #define 	MI_NOTAGERR           0xcc
 #define 	MI_ERR                0xbb

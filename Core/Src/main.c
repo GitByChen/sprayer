@@ -100,17 +100,18 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_RTC_Init();
+  MX_TIM2_Init();
+  MX_TIM6_Init();
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
   MX_USART1_UART_Init();
-  MX_SPI2_Init();
-  MX_TIM2_Init();
-  MX_TIM6_Init();
   MX_SPI1_Init();
-  MX_IWDG_Init();
+  MX_SPI2_Init();
+  MX_SPI3_Init();
+//  MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
-	MFRC_Init();				//RC260妯″潡鍒濆锟??
-	PCD_Reset();				//RC260澶嶄綅
+	MFRC_Init();				//RC260模块初始化
+	PCD_Reset();				//RC260复位
 	BSP_W25Qx_Init();
 	Flash_Data_Init();
   /* USER CODE END 2 */
@@ -220,15 +221,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     {
       Send_timing_wakeup=0;
     }
-    if(Pcd_Massage_Flag.Pcd_Read_Flag==0 && Pcd_Massage_Flag.Have_A_Card==PCD_OK) //锟??娴嬪埌鍗″苟涓旀病鏈夎鍗℃墠璁℃椂
+    if(Pcd_Massage_Flag.Pcd_Read_Flag==0 && Pcd_Massage_Flag.Have_A_Card==PCD_OK) //测到卡并且没有读卡才计时
     {
       readCard_delay++;
     }
-    HAL_RTC_GetTime(&hrtc, &GetTime, RTC_FORMAT_BIN);	//鑾峰彇鏃堕棿
-    HAL_RTC_GetDate(&hrtc, &GetData, RTC_FORMAT_BIN);	//鑾峰彇鏃ユ湡
-
+   HAL_RTC_GetTime(&hrtc, &GetTime, RTC_FORMAT_BIN);	//获取时间
+   HAL_RTC_GetDate(&hrtc, &GetData, RTC_FORMAT_BIN);	//获取日期
   }
-//	lv_tick_inc(1);
+	lv_tick_inc(1);
   /* USER CODE END Callback 1 */
 }
 
