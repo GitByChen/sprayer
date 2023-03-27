@@ -113,7 +113,6 @@ void surplus_change_cb(lv_event_t * e)
 }
 void GUI_task(void *argument)
 {
-	//u8 aa=0,bb=0,cc=0;
 	lv_init();                  // lvgl初始化，如果这个没有初始化，那么下面的初始化会崩溃
 	lv_port_disp_init();        // 显示器初始化
 
