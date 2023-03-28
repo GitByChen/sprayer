@@ -224,6 +224,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
   /* USER CODE BEGIN USART1_MspInit 1 */
 		__HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);              // 使能接收中断
 	__HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);              // 使能空闲中断
+  UART1_RX_STA=0;
 //	__HAL_UART_ENABLE_IT(&huart1,UART_IT_ERR);
 //		HAL_UART_Receive_IT(&huart1,UART1_RX_Buffer, 1);
 
@@ -402,16 +403,10 @@ void USART1_IRQHandler(void)
 	u8 Res;
 	if(__HAL_UART_GET_FLAG(&huart1, UART_FLAG_RXNE) != RESET)  // 空闲中断标记被置位
 	{	
-   // __HAL_UART_DISABLE_IT(&huart1, UART_IT_RXNE);
-	//	if(!(	UART1_RX_STA & 0x8000))
-		{
-      
+    __HAL_UART_DISABLE_IT(&huart1, UART_IT_RXNE);
+		//if((	UART1_RX_STA & 0x8000)==0)
+		{      
 			Res=huart1.Instance->RDR;
-      if(Res=='+')
-      {
-        memset(&UART1_RX_Buffer,0,sizeof(UART1_RX_Buffer));				//清除接收
-        UART1_RX_STA=0;
-      }
 			UART1_RX_Buffer[UART1_RX_STA++]=Res;
 			__HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);              // 使能接收中断
 			__HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);              // 使能空闲中断
@@ -425,12 +420,6 @@ void USART1_IRQHandler(void)
 			__HAL_UART_DISABLE_IT(&huart1,UART_IT_IDLE);
 			
 	}
-//			if(__HAL_UART_GET_FLAG(&huart1, UART_FLAG_ORE) != RESET)  // 空闲中断标记被置位
-//			{
-//				__HAL_UART_CLEAR_OREFLAG(&huart1);
-//				__HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);              // 使能接收中断
-
-//			}
 }
 
 //void USART2_IRQHandler(void)

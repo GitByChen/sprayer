@@ -40,6 +40,7 @@
 #include "ui.h"
 #include "lvgl.h"
 #include "lv_port_disp.h"
+#include "BC260Y.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -142,7 +143,7 @@ void MX_FREERTOS_Init(void) {
 
 
 
-	  osThreadDef( BC260YTask, BC260Y_task, osPriorityHigh, 0, 512);
+	  osThreadDef( BC260YTask, BC260Y_task, osPriorityHigh, 0, 1024);
    BC260YTaskHandle = osThreadCreate(osThread( BC260YTask), NULL);
 	 
 	 osThreadDef( GUITask, GUI_task, osPriorityAboveNormal, 0, 4*1024);
@@ -166,8 +167,9 @@ void StartDefaultTask(void const * argument)
   for(;;)
   {
 		Uart_task();
+//    MQTT_Receive_Data();
 //		HAL_IWDG_Refresh(&hiwdg);
-		osDelay(500);
+		osDelay(100);
   }
   /* USER CODE END StartDefaultTask */
 }

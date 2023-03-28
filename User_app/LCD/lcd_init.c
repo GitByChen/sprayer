@@ -136,7 +136,7 @@ void LCD_Init(void)
 	LCD_RES_Set();
 	delay_ms(50);
 	
-	LCD_BLK_Set();//打开背光
+	//LCD_BLK_Set();//打开背光
   	delay_ms(50);
 	
 	//************* Start Initial Sequence **********//

@@ -575,7 +575,6 @@ char PCD_ReadBlock(uint8_t BlockAddr, uint8_t *pData)
     CmdFrameBuf[0] = PICC_READ;
     CmdFrameBuf[1] = BlockAddr;
     MFRC_CalulateCRC(CmdFrameBuf, 2, &CmdFrameBuf[2]);
-    printf("addr=%d,crc=%d",CmdFrameBuf[1],CmdFrameBuf[2]);
     status = MFRC_CmdFrame(MFRC_TRANSCEIVE, CmdFrameBuf, 4, CmdFrameBuf, &unLen);
     if((status == PCD_OK) && (unLen == 0x90))
     {
@@ -827,7 +826,7 @@ void RC522Stask(void* pvParameters )
 {
     unsigned char pcd_addr;
     u8 buf[2]={0,0},Legal_status=0;
-    u8 aval=0;
+    u8 disp_val=0;      //由于需要一直扫描是否有卡，变量用于限制扫描时触发刷新事件的次数
     	
 	HX711_Massage.K=((((HX711_VAVDD)/HX711_BEARING)*HX711_GAIN)*HX711_24BIT)/HX711_BASE_VDD;      //计算转换的K值
     HX711_Massage.K/=HX711_K_VALUE;
@@ -839,13 +838,13 @@ void RC522Stask(void* pvParameters )
     for( ; ; ) 
     { 
 //			 xSemaphoreTake(MutexSemaphore,portMAX_DELAY);	//获取互斥信号量
-        Pcd_Massage_Flag.Have_A_Card=WaitCardOff();
+        Pcd_Massage_Flag.Have_A_Card=WaitCardOff(); //检测是否有卡
         
         if(Pcd_Massage_Flag.Have_A_Card==PCD_NOTAGERR )        //检测卡是否离开
         {
-            if(aval==0)
+            if(disp_val==0)
             {
-                aval=1;
+                disp_val=1;
                 ui_event_cb=surplus_change; //触发一次剩余量刷新事件
                // Pcd_Massage_Flag.Have_A_Card=PCD_ERR;
                 Pcd_Massage_Flag.Pcd_Read_Flag=0;
@@ -857,11 +856,6 @@ void RC522Stask(void* pvParameters )
                 Motor_Working(0);
             }                
         }
-       // else if(Pcd_Massage_Flag.Have_A_Card==PCD_OK)
-       // {
-       //     //aval=0;
-       //     //Pcd_Massage_Flag.Have_A_Card=PCD_OK;
-       // }
         else if(Pcd_Massage_Flag.Pcd_Read_Flag==0 && Pcd_Massage_Flag.Have_A_Card==PCD_OK && readCard_delay>=6)  //检测到卡之后等3S再读写卡
         {
            
@@ -869,8 +863,7 @@ void RC522Stask(void* pvParameters )
            {
                 //读写卡
                 pcd_addr=1;
-				aval=0;
-                printf("pcd_addr=%d",pcd_addr);
+				disp_val=0;
                 if(PCD_ReadBlock((pcd_addr*4+0), buf)==0) 
                 {
                      Pcd_Massage_Flag.Pcd_Read_Flag=1; 

@@ -117,6 +117,8 @@ void GUI_task(void *argument)
 	lv_port_disp_init();        // 显示器初始化
 
 	ui_init();
+	osDelay(500);
+	LCD_BLK_Set();	//开背光
 	while(strstr(BC260_Massage.BC260_SN,"MPN")==0)
 	{
 		lv_task_handler();
