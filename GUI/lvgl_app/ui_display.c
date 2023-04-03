@@ -81,6 +81,10 @@ static void clock_date_task_callback(lv_timer_t *timer)
  	
 		if(OldData.Date!=day || OldData.Month!=month|| OldData.Year!=year)
 		{
+            if(weekday>6)
+            {
+                weekday=0;
+            }
 			 lv_label_set_text_fmt(ui_LableData, "20%d/%02d/%02d", year, month, day);
 			 lv_label_set_text_fmt(ui_LableWeek, "%s", week_day[weekday]);
 			OldData.Date=day ; 

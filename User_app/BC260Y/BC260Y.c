@@ -23,8 +23,6 @@
 extern SemaphoreHandle_t MutexSemaphore;	//互斥信号量
 
 BC260_MASSAGE BC260_Massage; 
-
-char t_json[70];
 void MQTT_SendStr(char* pData)
 {
 	char *data=pData;
@@ -48,7 +46,7 @@ u8 Clear_Buffer(const char *resp,u8 timeout)
         
         if(strstr((const char*)BC260_Massage.BC260_UART_BUF,(const char*)AT_Order_ERROE)!=0)
         {
-             BC260_Massage.BC260Y_CONNECT_FLAG=0;
+            BC260_Massage.BC260Y_CONNECT_FLAG=0;
             return 1;
         }
         else if(i>=timeout)
@@ -76,12 +74,7 @@ u8  BC260Y_Init(void)//对设备初始化
     {
         return 1;
     }
-    MQTT_SendStr(AT_Order_ECHOMODE); //设置不回显输入数据 
-    vTaskDelay(50);  
-    if(Clear_Buffer(AT_Order_RESP,10))
-    {
-        return 1;
-    }
+
     MQTT_SendStr(AT_Order_CFG); //发送”session“设置，获取掉电期间服务器下发的消息
     vTaskDelay(50);  
     if(Clear_Buffer(AT_Order_RESP,10))
@@ -96,26 +89,28 @@ u8  BC260Y_Init(void)//对设备初始化
     } 
 
     MQTT_SendStr(AT_RESP_CSQ);  //查询网络信号
-    vTaskDelay(50);  
+    vTaskDelay(100);  
     if(Clear_Buffer(AT_Order_RESP,30))
     {
         return 1;
     }
     sscanf(BC260_Massage.BC260_UART_BUF,"%*[^:]: %[^,]",temp);
     sscanf(temp,"%d",&BC260_Massage.CSG_val);
+
 	MQTT_SendStr(AT_Order_CGIMEI);	//发送
-    vTaskDelay(50);
+    vTaskDelay(100);
     if(Clear_Buffer(AT_Order_RESP,30)==1)
     {
         return 1;
     }
     sscanf(BC260_Massage.BC260_UART_BUF, "%*[^: ]: %[^\r]",BC260_Massage.BC260_IMEI);
-//	printf("imei=%s\r\n",BC260_Massage.BC260_IMEI);
+	printf("imei=%s\r\n",BC260_Massage.BC260_IMEI);
     if(BC260_Massage.BC260_IMEI==0)
     {
         return 1;
     }
     vTaskDelay(50);
+
 	if(strstr(BC260_Massage.BC260_SN,"MPN")==0)	
     {
         MQTT_SendStr(AT_Order_CGSN);	//发送
@@ -134,6 +129,12 @@ u8  BC260Y_Init(void)//对设备初始化
         //vTaskDelay(300);
         
     }
+    MQTT_SendStr(AT_Order_ECHOMODE); //设置不回显输入数据 
+    vTaskDelay(50);  
+    if(Clear_Buffer(AT_Order_RESP,10))
+    {
+        return 1;
+    }
     return 0;
 }
 
@@ -151,7 +152,21 @@ u8 MQTT_QMTCLOSE(void)
 	BC260_Massage.BC260Y_CONNECT_FLAG=1;
     return 0;   
 }
+/*
+*退出服务器
+*/
+u8 MQTT_QMTDISC(void)
+{
+	MQTT_SendStr( AT_MQTT_QMTDISC);	//发送
+    vTaskDelay(100);
+    if(Clear_Buffer(AT_MQTT_RESP_QMTDISC,90))
+    {
+        return 1;
+    }
+	BC260_Massage.BC260Y_CONNECT_FLAG=1;
+    return 0;   
 
+}
 /*
 *连接服务器
 */
@@ -171,6 +186,7 @@ u8 MQTT_QMTOPEN(void)
 */
 u8 MQTT_QMTCONN(void)
 {
+    char t_json[70];
     memset(&t_json,0,sizeof(t_json));
     //printf("sn=%s\r\n",BC260_Massage.BC260_SN);         //使用SN码作为设备名
     sprintf(t_json, AT_MQTT_QMTCONN,BC260_Massage.BC260_SN);
@@ -192,6 +208,7 @@ u8 MQTT_QMTCONN(void)
 */
 u8 MQTT_Subscribe(char *QMTSUB)
 {
+    char t_json[70];
     memset(&t_json,0,sizeof(t_json));	
     sprintf(t_json,QMTSUB,BC260_Massage.BC260_SN);
     //printf("sn=%s\r\n",BC260_Massage.BC260_SN);         //使用SN码作为设备名
@@ -213,16 +230,18 @@ u8 MQTT_Subscribe(char *QMTSUB)
 u8 MQTT_Publish(const char *str, char *sub)
 {
     u8 t=26;
-	u16 len;   
-    memset(&t_json,0,sizeof(t_json));	
+	u16 len; 
+    char t_json[70];  
+    memset(&t_json,0,sizeof(t_json));
     sprintf(t_json,str,BC260_Massage.BC260_SN);
 	MQTT_SendStr((char *)t_json);	//发送
-    vTaskDelay(300);
-    MQTT_Receive_Data();		
+    vTaskDelay(100);
+    MQTT_Receive_Data();	//后期可去掉这句	
     len=strlen(sub);
+    //sub[len++]=t;
     HAL_UART_Transmit(&huart1, (u8* )sub,len, 10000);    // 发送		
     HAL_UART_Transmit(&huart1, &t,1, 10000);    // 发送
-    vTaskDelay(300);
+    vTaskDelay(100);
     if(Clear_Buffer(AT_MQTT_RESP_MQTPUB,90))
     {
         return 1;
@@ -231,20 +250,20 @@ u8 MQTT_Publish(const char *str, char *sub)
     return 0;
 }
 
-char JSON_MASSAGE[200]; //存放定时上报的数据
 /*定时发送函数*/
 void TimerSub(void)
 {
-
+    char JSON_MASSAGE[120]; //存放定时上报的数据
     Send_Timeout=0;     //计数清零
     Send_timing_wakeup=0; 
     memset(&JSON_MASSAGE,0,sizeof(JSON_MASSAGE));   
     sprintf(JSON_MASSAGE,JSON_BC260Y_MASSAGE,BC260_Massage.BC260_SN,BC260_Massage.BC260_IMEI, BC260_Massage.bindFlag ,1, time_to_timestamp(),HX711_Massage.Write_To_Card_Weight);//time_to_timestamp():获取秒时间戳；get_time_ms()：毫秒时间戳             
-    // printf("size=%d\r\n",strlen(JSON_MASSAGE));
+    printf("size=%d\r\n",strlen(JSON_MASSAGE));
     if(MQTT_Publish(AT_MQTT_PUB_TIMING_REPORT,JSON_MASSAGE)==1)
     {
-        MQTT_QMTCONN(); 
-        mqtt_Sub();
+        MQTT_QMTOPEN(); //连接
+        MQTT_QMTCONN(); //登录
+        mqtt_Sub();     //订阅
     }
 }
 /*定时发送函数*/
@@ -266,6 +285,8 @@ void MQTT_Receive_Data(void)
         {
                 BC260_Massage.BC260Y_CONNECT_FLAG=0;
                 MQTT_QMTCLOSE();
+                MQTT_QMTDISC();
+                
         }
         else if(strstr(BC260_Massage.BC260_UART_BUF,AT_RESP_INIT)!=0 )   //看下返回状态
         {
@@ -338,7 +359,7 @@ void BC260Y_task(void const * argument )
                 }
                 else
                 {
-                   
+
                     MQTT_QMTOPEN(); //d
                     MQTT_QMTCONN();                    
                     mqtt_Sub();
@@ -360,7 +381,7 @@ void BC260Y_task(void const * argument )
         {   
 			if( Send_Timeout>=120 )//超过15S对广播一次 定时器500Ms加一
             {
-							TimerSub();
+				TimerSub();
 							
             }
             else if(Pcd_Massage_Flag.Pcd_Read_Flag==1 && Pcd_Massage_Flag.Pcd_Write_Flag==2 )       //Pcd_Write_Flag 在完成写卡后置2
@@ -372,30 +393,34 @@ void BC260Y_task(void const * argument )
                 //printf("size=%d,pcd=%s",strlen(massage_pcd),massage_pcd);
                 if(MQTT_Publish(AT_MQTT_PUB_TIMING_WAKEUP,massage_pcd)==1)
                 {                          
-                       MQTT_QMTCONN();	
-                        mqtt_Sub();
+                    MQTT_QMTOPEN(); //连接
+                    MQTT_QMTCONN(); //登录
+                    mqtt_Sub();     //订阅
                 }
                 Pcd_Massage_Flag.Pcd_Write_Flag=3;
                 
             }
-			else if(Send_timing_wakeup>=20)              //定时发送，维持模块唤醒
+			else if(Send_timing_wakeup>=30)              //定时发送，维持模块唤醒
             {
                 Send_timing_wakeup=0;  
-                char *res="OK"; 
-                if(MQTT_Publish(AT_MQTT_PUB_TIMING_WAKEUP,res)==1)
+                //char *res="OK"; 
+                if(MQTT_Publish(AT_MQTT_PUB_TIMING_WAKEUP,"res")==1)
                 {   
-                    MQTT_QMTCONN(); 
-                    mqtt_Sub();                                       
+                    MQTT_QMTOPEN(); //连接
+                    MQTT_QMTCONN(); //登录
+                    mqtt_Sub();     //订阅
                 }                    
             }
             else if(Pcd_Massage_Flag.Pcd_Legal_Flag==2 &&  BC260_Massage.send_error==1 && BC260_Massage.bindFlag==1)  //如果重量不合法，上报
             {
+                char t_json[70];
                 memset(&t_json,0,sizeof(t_json));
                 sprintf(t_json, HX711_Weight_Error_Report, BC260_Massage.BC260_SN,time_to_timestamp());//time_to_timestamp():获取秒时间戳；get_time_ms()：毫秒时间戳 
                 if(MQTT_Publish(AT_MQTT_PUB_WEIGHT_REPORT,t_json)==1)
                 {   
-                    MQTT_QMTCONN(); 
-                    mqtt_Sub();                                        
+                    MQTT_QMTOPEN(); //连接
+                    MQTT_QMTCONN(); //登录
+                    mqtt_Sub();     //订阅
                 }
                  BC260_Massage.send_error=0;
             }

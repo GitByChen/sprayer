@@ -28,7 +28,8 @@ extern BC260_MASSAGE BC260_Massage;
 #define AT_Order_CPSMS           "AT+CPSMS=0"    //退出休眠
 #define AT_Order_ECHOMODE        "AT+QMTCFG=\"echomode\",0,0"   //0,0：不向uart回传输入的数据；0,1:回传输入数据
 #define AT_MQTT_QMTOPEN         "AT+QMTOPEN=0,\"120.24.149.179\",1883"   //接入服务器
-#define AT_MQTT_QMTCLOSE        "AT+QMTCLOSE=0"
+#define AT_MQTT_QMTCLOSE        "AT+QMTCLOSE=0"    //关闭服务器
+#define AT_MQTT_QMTDISC        "AT+QMTDISC=0"      //退出登录
 #define AT_MQTT_QMTCONN         "AT+QMTCONN=0,\"%s\",\"nebulizer\",\"ljrh1234\""           //发送模块ID
 
 #define AT_MQTT_PUB_TIMING_REPORT          "AT+QMTPUB=0,0,0,0,\"ljrh/nebulizer/%s/deviceStatus\"" // 定时广播的主题
@@ -67,9 +68,10 @@ extern BC260_MASSAGE BC260_Massage;
 #define AT_ORDER                "AT+"           //AT指令
 #define AT_RESP_CGSN             "AT+CGSN="
 #define AT_Order_CFG             "AT+QMTCFG=\"session\",0,0"
-#define AT_Order_QMTCFG          "AT+QMTCFG=\"keepalive\",0,10"
+#define AT_Order_QMTCFG          "AT+QMTCFG=\"keepalive\",0,20"
 #define AT_MQTT_RESP_QMTOPEN    "+QMTOPEN: 0,0"     //接入指令返回字符
 #define AT_MQTT_RESP_QMTCLOSE    "+QMTCLOSE: 0,0"     //关闭指令返回字符
+#define AT_MQTT_RESP_QMTDISC    "+QMTDISC: 0,0"     //退出指令返回字符
 
 #define AT_MQTT_RESP_QMTCONN    "+QMTCONN: 0,0,0"   //登录指令返回状态
 #define AT_MQTT_RESP_MQTSUB     "+QMTSUB: 0,1"  //   订阅成功
@@ -94,7 +96,9 @@ u8 MQTT_REST(void);        //MQTT复位
 u8 MQTT_QMTOPEN(void);     //连接服务器
 u8 MQTT_QMTCLOSE(void);     //关闭连接服务器
 u8 MQTT_QMTCONN(void);     //登录服务器
-void mqtt_Sub(void);       //
+u8 MQTT_QMTCLOSE(void);    //退出服务器
+
+void mqtt_Sub(void);       //MQTT总订阅
 
 u8 MQTT_Subscribe(char *QMTSUB);  //订阅
 u8 MQTT_Publish(const char *str, char *sub);//广播
