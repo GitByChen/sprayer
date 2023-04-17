@@ -85,16 +85,26 @@ u8 RTC_Get_Week(u16 year,u8 month,u8 day)
 	return(temp2%7);
 }
 */
+u8 scan_work_day(u8 Num)
+{
+	u8 work_i=0,work_t=0;
+	work_t=strlen((char*)Cjson_Buf.Cjson_Buffer_Data[Num].work_day);
+	for(work_i=0;work_i<work_t;work_i++)
+	{
+		if(GetData.WeekDay==Cjson_Buf.Cjson_Buffer_Data[Num].work_day[work_i])
+		{			
+			return 1;
+		}
+	}
+	return 0;
+}
 void work_task(void const * argument )
 {
 	static u8 minute_interval_Cheak=0,minute_Cheak=0;
 	for( ; ; ) 
 	{	
 //		xSemaphoreTake(MutexSemaphore,portMAX_DELAY);		//获取互斥信号量
-//	HAL_RTC_GetTime(&hrtc, &GetTime, RTC_FORMAT_BIN);	//获取时间
-//  HAL_RTC_GetDate(&hrtc, &GetData, RTC_FORMAT_BIN);	//获取日期
 	//		calendar.week=RTC_Get_Week(GetData.Year+2000,GetData.Month,GetData.Date);//获取星期
-	//	printf("week=%d\r\n",GetData.WeekDay);
 //	printf("%d-%d-%d %d:%d:%d\n",GetData.Year,GetData.Month,GetData.Date,GetTime.Hours,GetTime.Minutes,GetTime.Seconds);//输出闹铃时间
 		if(Pcd_Massage_Flag.Have_A_Card==PCD_OK)
 		{
@@ -102,16 +112,13 @@ void work_task(void const * argument )
 			{
 				minute_Cheak=1;		//每分钟检查一次完成
 				work_time.which_working_time=0;//对记录值进行清零
-				while(work_time.which_working_time<Cjson_Buf.size)
-				{	
-					if(GetData.WeekDay>=Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].week_start 
-						&& GetData.WeekDay<=Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].week_end)
-					{
-						
+				while(work_time.which_working_time<Cjson_Buf.size && work_time.work_time_flag==0)
+				{	                       
+					if(scan_work_day(work_time.which_working_time)==1)
+					{	
 						if((GetTime.Hours*60 +GetTime.Minutes)==(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_start_hour*60 +Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_start_min) 
 							&& Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].once_task==1)
 						{
-							
 								if(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].status==1 && work_time.working_once==0)
 								{
 									work_time.work_time_flag=1;
@@ -152,14 +159,16 @@ void work_task(void const * argument )
 							work_time.working_once=0;
 							work_time.which_working_time++;	//记录哪个工作组在工作
 						}
+				
 					}
 					else
 					{
 						work_time.work_time_flag=0;
 						work_time.working_once=0;
-						work_time.which_working_time++;	//记录哪个工作组在工作
+						work_time.which_working_time++;	//记录哪个工作组在工作				
 					}
-
+					
+					
 				}
 
 				if(work_time.work_time_flag!=1)
@@ -177,8 +186,7 @@ void work_task(void const * argument )
 			{
 				minute_interval_Cheak=1;
 				//printf("%d-%d-%d %d:%d:%d\n",GetData.Year,GetData.Month,GetData.Date,GetTime.Hours,GetTime.Minutes,GetTime.Seconds);//输出闹铃时间					
-					if(GetData.WeekDay>=Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].week_start 
-						&& GetData.WeekDay<=Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].week_end)
+					if(scan_work_day(work_time.which_working_time)==1)
 					{
 						if(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].once_task==1  )
 						{	

@@ -110,8 +110,8 @@ int main(void)
   MX_SPI3_Init();
 //  MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
-	MFRC_Init();				//RC260Ä£¿é³õÊ¼»¯
-	PCD_Reset();				//RC260¸´Î»
+	MFRC_Init();				//RC260Ä£ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½
+	PCD_Reset();				//RC260ï¿½ï¿½Î»
 	BSP_W25Qx_Init();
 	Flash_Data_Init();
   /* USER CODE END 2 */
@@ -221,12 +221,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     {
       Send_timing_wakeup=0;
     }
-    if(Pcd_Massage_Flag.Pcd_Read_Flag==0 && Pcd_Massage_Flag.Have_A_Card==PCD_OK) //²âµ½¿¨²¢ÇÒÃ»ÓÐ¶Á¿¨²Å¼ÆÊ±
+    if(Pcd_Massage_Flag.Pcd_Read_Flag==0 && Pcd_Massage_Flag.Have_A_Card==PCD_OK) //ï¿½âµ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½Å¼ï¿½Ê±
     {
       readCard_delay++;
     }
-   HAL_RTC_GetTime(&hrtc, &GetTime, RTC_FORMAT_BIN);	//»ñÈ¡Ê±¼ä
-   HAL_RTC_GetDate(&hrtc, &GetData, RTC_FORMAT_BIN);	//»ñÈ¡ÈÕÆÚ
+   HAL_RTC_GetTime(&hrtc, &GetTime, RTC_FORMAT_BIN);	//ï¿½ï¿½È¡Ê±ï¿½ï¿½
+   HAL_RTC_GetDate(&hrtc, &GetData, RTC_FORMAT_BIN);	//ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½
   }
 	lv_tick_inc(1);
   /* USER CODE END Callback 1 */

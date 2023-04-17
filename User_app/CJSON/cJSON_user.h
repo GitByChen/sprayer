@@ -41,8 +41,9 @@ typedef struct{
     char task_no[15];           //存放任务编号
     char timestart[10];        //开始时间字符串
     char timeend[10];          //结束时间字符串
-    u8 week_start;          //星期几开始
-    u8 week_end;            //星期几结束
+    u8 work_day[7];            //星期几工作
+   // u8 week_start;          //星期几开始
+   // u8 week_end;            //星期几结束
     u8 time_start_hour;     //解析出来的开始时间
     u8 time_start_min;
     u8 time_end_hour;       //解析出来的结束时间
@@ -50,7 +51,7 @@ typedef struct{
     u8 status;           //是否启用
     u8 once_task;       //是否单次任务
     u8 interval_time;   //工作间隔 单位：min
-    u8 gears;           //工作档位 单位：min
+    u8 gears;           //工作档位 单位：
     u16 worktime;       //工作时间 单位：s
 
 }Cjson_Buffer;

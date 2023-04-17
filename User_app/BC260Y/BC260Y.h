@@ -5,7 +5,7 @@
 
 typedef struct 
 {
-   char BC260_UART_BUF[400];
+   char BC260_UART_BUF[300];
    char AT_ORDER_BUF[220];
    char BC260_IMEI[20];         //存放IMEI号
    char BC260_SN[20];            //存放SN号

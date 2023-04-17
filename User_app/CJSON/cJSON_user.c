@@ -29,17 +29,22 @@ void Uart_task(void)
 		if(UART3_RX_STA & 0X8000)
 		{
             u8 buffer[100]={0};
+            u8 work_val=0,i;
 //			printf("%s\r\n",UART3_RX_Buffer);		
 			strcpy((char*)buffer,(char *)UART3_RX_Buffer);
 			UART3_RX_STA = 0;
 			memset(&UART3_RX_Buffer,0,sizeof(UART3_RX_Buffer));				//清除接收
 				if(strstr((const char*)buffer,CHEAK_TASK)!=0)
-				{		
+				{	
 					for(ret=0;ret<Cjson_Buf.size;ret++)
 					{
-						printf("星期几开始:%d,星期几结束:%d,开始时间:%s,结束时间:%s,工作间隔：%d,工作档位：%d,工作时间:%d,单次任务：%d\r\n",Cjson_Buf.Cjson_Buffer_Data[ret].week_start,
-										Cjson_Buf.Cjson_Buffer_Data[ret].week_end,
-										Cjson_Buf.Cjson_Buffer_Data[ret].timestart,
+                        printf("工作日：");
+                        work_val=strlen((char*)Cjson_Buf.Cjson_Buffer_Data[ret].work_day);
+                        for(i=0;i<work_val;i++)
+                        {
+                            printf("%d,",Cjson_Buf.Cjson_Buffer_Data[ret].work_day[i]);
+                        }
+						printf(",开始时间:%s,结束时间:%s,工作间隔：%d,工作档位：%d,工作时间:%d,单次任务：%d\r\n",Cjson_Buf.Cjson_Buffer_Data[ret].timestart,
 										Cjson_Buf.Cjson_Buffer_Data[ret].timeend,
 										Cjson_Buf.Cjson_Buffer_Data[ret].interval_time,
 										Cjson_Buf.Cjson_Buffer_Data[ret].gears,  
@@ -114,7 +119,7 @@ uint8_t ParseStr(const char *JSON,TPYE CJSON_TASK_TPYE)
     cJSON *str_json,*task_json, *str_arder;
     cJSON *task_flag,*str_no,*str_week,*str_timestart,*str_timeend,*str_intervaltime,*str_gears,*str_worktime, *str_status ,*str_single;
     char *time_end,*time_start,*task_no;
-    int start_hour,start_min,end_hour,end_min, week_start,week_end;
+    int start_hour,start_min,end_hour,end_min, work_day[7]={0},i;
     str_json = cJSON_Parse(JSON);   //创建JSON解析对象，返回JSON格式是否正确
     if (!str_json)
     {
@@ -136,9 +141,9 @@ uint8_t ParseStr(const char *JSON,TPYE CJSON_TASK_TPYE)
                 {
                     str_no = cJSON_GetObjectItem(task_json, NO);   //任务编号
                     task_no=str_no->valuestring;
-
+                    memset(work_day,0,sizeof(work_day));
                     str_week = cJSON_GetObjectItem(task_json, WEEK);   //解析周几工作
-                    sscanf(str_week->valuestring,"%d-%d",&week_start,&week_end);
+                    sscanf(str_week->valuestring,"%d,%d,%d,%d,%d,%d,%d",&work_day[0],&work_day[1],&work_day[2],&work_day[3],&work_day[4],&work_day[5],&work_day[6]);
                     str_single  = 	cJSON_GetObjectItem(task_json,SINGLE);	        //任务是否单次
                     str_timestart = cJSON_GetObjectItem(task_json, START); 
                     time_start= str_timestart->valuestring;     
@@ -158,9 +163,11 @@ uint8_t ParseStr(const char *JSON,TPYE CJSON_TASK_TPYE)
                     {
                         strcpy(Cjson_Buf.Cjson_Buffer_Data[Cjson_Buf.size].timestart,time_start);
                         
-                         strcpy(Cjson_Buf.Cjson_Buffer_Data[Cjson_Buf.size].task_no,task_no);
-                        Cjson_Buf.Cjson_Buffer_Data[Cjson_Buf.size].week_start=         week_start; 
-                        Cjson_Buf.Cjson_Buffer_Data[Cjson_Buf.size].week_end=           week_end;
+                        strcpy(Cjson_Buf.Cjson_Buffer_Data[Cjson_Buf.size].task_no,task_no);
+                        for(i=0;i<7;i++)
+                        {
+                            Cjson_Buf.Cjson_Buffer_Data[Cjson_Buf.size].work_day[i]=work_day[i];
+                        }
                         Cjson_Buf.Cjson_Buffer_Data[Cjson_Buf.size].interval_time=      str_intervaltime->valueint;
                         Cjson_Buf.Cjson_Buffer_Data[Cjson_Buf.size].gears=              str_gears->valueint;                   
                         Cjson_Buf.Cjson_Buffer_Data[Cjson_Buf.size].worktime=           str_worktime->valueint;
@@ -196,8 +203,9 @@ uint8_t ParseStr(const char *JSON,TPYE CJSON_TASK_TPYE)
                     str_no = cJSON_GetObjectItem(task_json, NO);   //解析任务编号
                     task_no=str_no->valuestring;
 
+                    memset(work_day,0,sizeof(work_day));
                     str_week = cJSON_GetObjectItem(task_json, WEEK);   //解析周几工作
-                    sscanf(str_week->valuestring,"%d-%d",&week_start,&week_end);
+                    sscanf(str_week->valuestring,"%d,%d,%d,%d,%d,%d,%d",&work_day[0],&work_day[1],&work_day[2],&work_day[3],&work_day[4],&work_day[5],&work_day[6]);
 
                     str_timestart = cJSON_GetObjectItem(task_json, START); 
                     time_start= str_timestart->valuestring;     
@@ -220,24 +228,38 @@ uint8_t ParseStr(const char *JSON,TPYE CJSON_TASK_TPYE)
                             break;
                         }
                     }
+                    printf("num=%d",no_num);
                     if(no_num<Cjson_Buf.size)
                     {
-                        strcpy(Cjson_Buf.Cjson_Buffer_Data[Cjson_Buf.size].timestart,time_start);
-                        strcpy(Cjson_Buf.Cjson_Buffer_Data[Cjson_Buf.size].timeend,time_end);
-                        strcpy(Cjson_Buf.Cjson_Buffer_Data[Cjson_Buf.size].task_no,task_no);
-                        Cjson_Buf.Cjson_Buffer_Data[Cjson_Buf.size].week_start=         week_start; 
-                        Cjson_Buf.Cjson_Buffer_Data[Cjson_Buf.size].week_end=           week_end;
-                        Cjson_Buf.Cjson_Buffer_Data[Cjson_Buf.size].interval_time=      str_intervaltime->valueint;
-                        Cjson_Buf.Cjson_Buffer_Data[Cjson_Buf.size].gears=              str_gears->valueint;                   
-                        Cjson_Buf.Cjson_Buffer_Data[Cjson_Buf.size].worktime=           str_worktime->valueint;
-                        Cjson_Buf.Cjson_Buffer_Data[Cjson_Buf.size].status=             str_status->valueint;
-                        Cjson_Buf.Cjson_Buffer_Data[Cjson_Buf.size].time_start_hour=    start_hour;    
-                        Cjson_Buf.Cjson_Buffer_Data[Cjson_Buf.size].time_start_min=     start_min;
-                        Cjson_Buf.Cjson_Buffer_Data[Cjson_Buf.size].time_end_hour=      end_hour;   
-                        Cjson_Buf.Cjson_Buffer_Data[Cjson_Buf.size].time_end_min=       end_min; 
-                        Cjson_Buf.Cjson_Buffer_Data[Cjson_Buf.size].once_task=       str_single->valueint; 
+                        strcpy(Cjson_Buf.Cjson_Buffer_Data[no_num].timestart,time_start);
+                        
+                        strcpy(Cjson_Buf.Cjson_Buffer_Data[no_num].task_no,task_no);
+                        //strcpy((char*)Cjson_Buf.Cjson_Buffer_Data[no_num.work_day,(char*)work_day);
+                        for(i=0;i<7;i++)
+                        {
+                            Cjson_Buf.Cjson_Buffer_Data[no_num].work_day[i]=work_day[i];
+                        }
+                        Cjson_Buf.Cjson_Buffer_Data[no_num].interval_time=      str_intervaltime->valueint;
+                        Cjson_Buf.Cjson_Buffer_Data[no_num].gears=              str_gears->valueint;                   
+                        Cjson_Buf.Cjson_Buffer_Data[no_num].worktime=           str_worktime->valueint;
+                        Cjson_Buf.Cjson_Buffer_Data[no_num].status=             str_status->valueint;
+                        Cjson_Buf.Cjson_Buffer_Data[no_num].time_start_hour=    start_hour;    
+                        Cjson_Buf.Cjson_Buffer_Data[no_num].time_start_min=     start_min;
+                        if( str_single->valueint==0)        //单次任务没有结束时间
+                        {
+                            Cjson_Buf.Cjson_Buffer_Data[no_num].time_end_hour=      end_hour;   
+                            Cjson_Buf.Cjson_Buffer_Data[no_num].time_end_min=       end_min;
+                            strcpy(Cjson_Buf.Cjson_Buffer_Data[no_num].timeend,time_end);
+                        }
+                        else
+                        {
+                            strcpy(Cjson_Buf.Cjson_Buffer_Data[no_num].timeend,"0");
+                             Cjson_Buf.Cjson_Buffer_Data[no_num].time_end_hour=0;   
+                            Cjson_Buf.Cjson_Buffer_Data[no_num].time_end_min=0;                           
+                        }
+                          Cjson_Buf.Cjson_Buffer_Data[no_num].once_task=       str_single->valueint; 
 						W25QXX_Write((u8*)&Cjson_Buf,CJSON_DATA_FLASH_BASE,CJSON_DATA_SIZE);
-						//printf("set ok\r\n");
+						printf("set ok\r\n");
 
                     }
                 }
@@ -258,15 +280,15 @@ uint8_t ParseStr(const char *JSON,TPYE CJSON_TASK_TPYE)
                     }
                                      
                     for(num=no_num;num<Cjson_Buf.size;num++)		//删除对应工作组数据内容
-                    {                   
+                    {  
+                        memset(&Cjson_Buf.Cjson_Buffer_Data[num],0,sizeof(Cjson_Buf.Cjson_Buffer_Data[num]));                 
                         Cjson_Buf.Cjson_Buffer_Data[num]= Cjson_Buf.Cjson_Buffer_Data[num+1];
-                        memset(&Cjson_Buf.Cjson_Buffer_Data[num+1],0,sizeof(Cjson_Buf.Cjson_Buffer_Data[num+1]));
                     }
                     if(Cjson_Buf.size>0 && no_num<Cjson_Buf.size)       //任务组计数减一
                         Cjson_Buf.size--; 
                     W25QXX_Write((u8*)&Cjson_Buf,CJSON_DATA_FLASH_BASE,CJSON_DATA_SIZE);
                    // memset(&work_time,0,sizeof(work_time));//每次删除操作后都要复位重新判断
-                   // printf("序号:%d \r\n", no_num); 
+                    printf("序号:%d \r\n", no_num); 
                 }
         break;
         case createRTCTask:
@@ -310,14 +332,15 @@ uint8_t ParseStr(const char *JSON,TPYE CJSON_TASK_TPYE)
                         printf("序号:%d \r\n", str_serial->valueint);                   
                     }        
                     for(num=str_serial->valueint;num<Cjson_Buf.size;num++)		//删除对应工作组数据内容
-                    {                   
+                    {   
+                        memset(&Cjson_Buf.Cjson_Buffer_Data[num],0,sizeof(Cjson_Buf.Cjson_Buffer_Data[num]));                
                         Cjson_Buf.Cjson_Buffer_Data[num]= Cjson_Buf.Cjson_Buffer_Data[num+1];
-                        memset(&Cjson_Buf.Cjson_Buffer_Data[num+1],0,sizeof(Cjson_Buf.Cjson_Buffer_Data[num+1]));
+                        
                     }
                     if(Cjson_Buf.size>0)
                         Cjson_Buf.size--; 
                     W25QXX_Write((u8*)&Cjson_Buf,CJSON_DATA_FLASH_BASE,CJSON_DATA_SIZE);
-             //       memset(&work_time,0,sizeof(work_time));//每次删除操作后都要复位重新判断
+             //     memset(&work_time,0,sizeof(work_time));//每次删除操作后都要复位重新判断
            }
             else
             {

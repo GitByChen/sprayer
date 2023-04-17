@@ -157,18 +157,18 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>314</LineNumber>
+          <LineNumber>92</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134237082</Address>
+          <Address>134235092</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\User_app\BC260Y\BC260Y.c</Filename>
+          <Filename>../Core/Src/stm32l4xx_it.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\mist_spray\../User_app/BC260Y/BC260Y.c\314</Expression>
+          <Expression>\\mist_spray\../Core/Src/stm32l4xx_it.c\92</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -180,32 +180,7 @@
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>aval</ItemText>
-        </Ww>
-        <Ww>
-          <count>2</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>status</ItemText>
-        </Ww>
-        <Ww>
-          <count>3</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>unLen</ItemText>
-        </Ww>
-        <Ww>
-          <count>4</count>
-          <WinNumber>1</WinNumber>
           <ItemText>Pcd_Massage_Flag.Have_A_Card,0x10</ItemText>
-        </Ww>
-        <Ww>
-          <count>5</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>Pcd_Massage_Flag.Pcd_Legal_Flag</ItemText>
-        </Ww>
-        <Ww>
-          <count>6</count>
-          <WinNumber>1</WinNumber>
-          <ItemText>Pcd_Massage_Flag.Pcd_Write_Flag</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
@@ -219,17 +194,12 @@
           <WinNumber>2</WinNumber>
           <ItemText>UART1_RX_STA</ItemText>
         </Ww>
-        <Ww>
-          <count>2</count>
-          <WinNumber>2</WinNumber>
-          <ItemText>UART1_RX_Buffer</ItemText>
-        </Ww>
       </WatchWindow2>
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
-          <SubType>5</SubType>
-          <ItemText>0x20006530</ItemText>
+          <SubType>1</SubType>
+          <ItemText>0x10003760</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow1>
