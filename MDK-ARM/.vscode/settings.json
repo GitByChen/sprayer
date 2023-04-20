@@ -10,6 +10,7 @@
         "semphr.h": "c",
         "freertos.h": "c",
         "main.h": "c",
-        "hx711.h": "c"
+        "hx711.h": "c",
+        "lv_port_disp.h": "c"
     }
 }

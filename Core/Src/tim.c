@@ -217,6 +217,6 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
 
 void Motor_Working(u8 gears)
 {
-	 __HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,gears*300);//设置TIM2时钟通道2pwm输出的pulse值为500
+	 __HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,gears*333);//设置TIM2时钟通道2pwm输出的pulse值为500
 }
 /* USER CODE END 1 */

@@ -134,7 +134,7 @@
 
 ##### 请求示例
 ```json
-{"imei":"860387066315086","sn":"MPN22E4040395690P","task":{"echo":30,"end":"15:00","flag":3,"level":2,"no":"T221207JKYDV1","single":0,"start":"14:10","status":1,"time":45,"timestamp":1670393433838,"week":"1,2,3"}}
+{"imei":"860387066315086","sn":"MPN22E4040395690P","task":{"no":"T221207JKYDV1","week":"1,2,3","start":"14:10","end":"15:00","echo":30,"time":45,"level":2,"flag":3,"single":0,"status":1,"timestamp":1670393433838}}
  
 ```
 

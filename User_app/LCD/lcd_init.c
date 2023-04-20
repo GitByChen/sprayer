@@ -117,11 +117,11 @@ void LCD_Address_Set(u16 x1,u16 y1,u16 x2,u16 y2)
 	else
 	{
 		LCD_WR_REG(0x2a);//列地址设置
-		LCD_WR_DATA(x1+80);
-		LCD_WR_DATA(x2+80);
+		LCD_WR_DATA(x1);
+		LCD_WR_DATA(x2);
 		LCD_WR_REG(0x2b);//行地址设置
-		LCD_WR_DATA(y1);
-		LCD_WR_DATA(y2);
+		LCD_WR_DATA(y1-255);
+		LCD_WR_DATA(y2-255);
 		LCD_WR_REG(0x2c);//储存器写
 	}
 }
