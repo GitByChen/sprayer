@@ -21,28 +21,7 @@
 extern SemaphoreHandle_t MutexSemaphore;	//互斥信号量
 
 enum UI_EVENT ui_event_cb;
-void qc_andisplay(uint8_t val)
-{
-   // lv_obj_del(obj);	删除对象
-   //	lv_obj_swap(ui_Screen1, obj);		//交换位置
-	static uint8_t old_val=2;
-	if(val!=old_val)
-	{	
-		if(val==0)
-		{
-			lv_obj_clear_flag(qc_module, LV_OBJ_FLAG_HIDDEN);		//清除隐藏
-			//	lv_obj_add_flag(ui_Screen1, LV_OBJ_FLAG_HIDDEN);
-			// lv_obj_move_foreground(obj);
-		}
-		else if(val==1)
-		{
-		//	lv_obj_clear_flag(ui_Screen1, LV_OBJ_FLAG_HIDDEN);
-		  lv_obj_add_flag(qc_module, LV_OBJ_FLAG_HIDDEN);		//创建隐藏
-		//	lv_obj_move_background(obj);						
-		}
-		old_val=val;
-	}
-}
+
 void LableWifi_event_cb(lv_event_t * e)
 {
 	
@@ -67,7 +46,7 @@ void qc_event_cb(lv_event_t * e)
 	if(BC260_Massage.bindFlag==0)
 	{
 		lv_obj_clear_flag(qc_module, LV_OBJ_FLAG_HIDDEN);		//清除隐藏
-		 lv_obj_add_flag(ui_Screen1, LV_OBJ_FLAG_HIDDEN);
+		lv_obj_add_flag(ui_Screen1, LV_OBJ_FLAG_HIDDEN);
 	//	 lv_obj_move_foreground(qc_module);
 	}
 	else if(BC260_Massage.bindFlag==1)
@@ -101,7 +80,7 @@ void surplus_change_cb(lv_event_t * e)
 	u8 surplus=0;
 	if(Pcd_Massage_Flag.Have_A_Card==PCD_OK)
 	{
-		surplus=HX711_Massage.Write_To_Card_Weight*100/1000;
+		surplus=HX711_Massage.Write_To_Card_Weight*100/Weight_val_max;
 		lv_slider_set_value(ui_Slider2, surplus, LV_ANIM_OFF);
 		lv_label_set_text_fmt(ui_PercentVal,"%02d",surplus);
 	}
@@ -112,20 +91,46 @@ void surplus_change_cb(lv_event_t * e)
 	}
 }
 void GUI_task(void *argument)
-{
+{		
 	lv_init();                  // lvgl初始化，如果这个没有初始化，那么下面的初始化会崩溃
+	osDelay(10);
 	lv_port_disp_init();        // 显示器初始化
-
 	ui_init();
-	osDelay(500);
-	LCD_BLK_Set();	//开背光
+	lv_task_handler();			//初始化后需要执行LVGL任务中断，否则会有花屏
+	osDelay(10);
+	lv_task_handler();
+	osDelay(10);
+	HAL_Delay(1000);
+	LCD_BLK_Set();	//开背光	
 	while(strstr(BC260_Massage.BC260_SN,"MPN")==0)
 	{
+		switch (ui_event_cb)
+		{
+		case signal:
+			/* code */
+			lv_event_send(ui_LableWiFi,LV_EVENT_COVER_CHECK,NULL);	//触发信号图标刷新事件
+			ui_event_cb=normal;
+			break;
+		case run_static:
+			lv_event_send(ui_runningswitch,LV_EVENT_COVER_CHECK,NULL);	//触发一次状态切换事件
+			ui_event_cb=normal;
+			break;
+		case NextRunning_Reflash:
+			lv_event_send(ui_NextRunningBar,LV_EVENT_VALUE_CHANGED,NULL);	//触发一次喷雾进度条事件
+			ui_event_cb=normal;
+			break;
+		case surplus_change:
+			lv_event_send(ui_PercentVal,LV_EVENT_VALUE_CHANGED,NULL);	//触发一次剩余量显示刷新事件
+			ui_event_cb=normal;
+			break;
+		default:
+			break;
+		}
 		lv_task_handler();
 		osDelay(100);
-	}
-	qc_init();	
-	lv_event_send(qc_module,LV_EVENT_COVER_CHECK,NULL);	//开机判断一次绑定状态
+	}	
+	qc_init();
+	lv_event_send(qc_module,LV_EVENT_COVER_CHECK,NULL);	//触发一次界面切换事件
 	for(;;)
 	{	
 		switch (ui_event_cb)

@@ -24,14 +24,18 @@ extern HX711 HX711_Massage;
 #define HX711_VAVDD     4.3         //满量程输出电压 mV
 #define HX711_24BIT     16777216    //2^24
 #define HX711_BASE_VDD  4300        //基准电压 mV
-#define HX711_BEARING   5           //最大承重 KG
+#define HX711_BEARING   2           //最大承重 KG
 //#define HX711_K_VALUE    1000*1.274 //转换系数 值大了降低系数 反之增加  //5KG的系数为1000*1.000 //1KG 系数1000*1.274
 #define HX711_DT_READ GPIO_ReadInputDataBit(HX711_PIN,HX711_DT)
 #if(HX711_BEARING==1)
     #define HX711_K_VALUE    1000*1.274 //转换系数 值大了降低系数 反之增加  //5KG的系数为1000*1.000 //1KG 系数1000*1.274
 #elif(HX711_BEARING==5)
     #define HX711_K_VALUE    1000*1.000 //转换系数 值大了降低系数 反之增加  //5KG的系数为1000*1.000 //1KG 系数1000*1.274
+#else
+     #define HX711_K_VALUE    1000*1.030 //转换系数 值大了降低系数 反之增加  //5KG的系数为1000*1.000 //1KG 系数1000*1.274  2KG 系数1000*1.100     
 #endif
+#define Weight_val_max          1150     //液体+瓶子重量
+#define HX711_Weight_Err_val   30       //结构导致称重误差，大约为3%
 void Get_WeightBase(void);
 float Get_Weight(void);
 void Write_Weight_To_Card(void);

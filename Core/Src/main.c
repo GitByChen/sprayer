@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
+#include "dma.h"
 #include "iwdg.h"
 #include "rtc.h"
 #include "spi.h"
@@ -36,6 +37,8 @@
 #include "lvgl.h"
 #include "lv_conf.h"
 #include "lv_port_disp.h"
+#include "work.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -99,7 +102,9 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_RTC_Init();
+  MX_TIM1_Init();
   MX_TIM2_Init();
   MX_TIM6_Init();
   MX_USART2_UART_Init();
@@ -110,8 +115,8 @@ int main(void)
   MX_SPI3_Init();
 //  MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
-	MFRC_Init();				//RC260Ä£ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½
-	PCD_Reset();				//RC260ï¿½ï¿½Î»
+	MFRC_Init();				//RC260³õÊ¼»¯
+	PCD_Reset();				//RC260¸´Î»
 	BSP_W25Qx_Init();
 	Flash_Data_Init();
   /* USER CODE END 2 */
@@ -191,14 +196,16 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-u32 Send_Timeout=0;
+u32 Send_Timeout=0; //¶¨Ê±·¢ËÍ¼ÆÊ±
 u16 Send_timing_wakeup=0;
 u16 readCard_delay=0;
+u16 timer_500_ms=0;
+u16 RGB_timer=0;
 /* USER CODE END 4 */
 
 /**
   * @brief  Period elapsed callback in non blocking mode
-  * @note   This function is called  when TIM1 interrupt took place, inside
+  * @note   This function is called  when TIM7 interrupt took place, inside
   * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
   * a global variable "uwTick" used as application time base.
   * @param  htim : TIM handle
@@ -208,25 +215,40 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
   /* USER CODE BEGIN Callback 0 */
   /* USER CODE END Callback 0 */
-  if (htim->Instance == TIM1) {
+  if (htim->Instance == TIM7) {
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */
-  if (htim->Instance == TIM6) {
-    Send_Timeout++;
-		Send_timing_wakeup++;
-    if(Send_Timeout>=1000)
-      Send_Timeout=0;
-    if(Send_timing_wakeup>=1000)
-    {
-      Send_timing_wakeup=0;
+  if (htim->Instance == TIM6) {		//1ms
+		timer_500_ms++;
+    RGB_timer++;
+    if(execute_work_flag==1)
+			{
+      execute_work_time++;
+      if(execute_work_time>=5000)   //¶¨Ê±5Ãë
+      {
+        execute_work_flag=0;
+      }
     }
-    if(Pcd_Massage_Flag.Pcd_Read_Flag==0 && Pcd_Massage_Flag.Have_A_Card==PCD_OK) //ï¿½âµ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½Ð¶ï¿½ï¿½ï¿½ï¿½Å¼ï¿½Ê±
-    {
-      readCard_delay++;
-    }
-   HAL_RTC_GetTime(&hrtc, &GetTime, RTC_FORMAT_BIN);	//ï¿½ï¿½È¡Ê±ï¿½ï¿½
-   HAL_RTC_GetDate(&hrtc, &GetData, RTC_FORMAT_BIN);	//ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½
+		if(timer_500_ms>=500)
+			{
+				timer_500_ms=0;
+				Send_Timeout++;
+				Send_timing_wakeup++;
+				if(Send_Timeout>=1000)
+					Send_Timeout=0;
+				if(Send_timing_wakeup>=1000)
+				{
+					Send_timing_wakeup=0;
+				}
+				if(Pcd_Massage_Flag.Pcd_Read_Flag==0 && Pcd_Massage_Flag.Have_A_Card==PCD_OK) //¶Áµ½¿¨²Å¿ªÊ¼¼ÆÊý
+				{
+					readCard_delay++;
+				}
+
+			 HAL_RTC_GetTime(&hrtc, &GetTime, RTC_FORMAT_BIN);	//»ñÈ¡Ê±¼ä
+			 HAL_RTC_GetDate(&hrtc, &GetData, RTC_FORMAT_BIN);	//»ñÈ¡ÈÕÆÚ
+			}
   }
 	lv_tick_inc(1);
   /* USER CODE END Callback 1 */

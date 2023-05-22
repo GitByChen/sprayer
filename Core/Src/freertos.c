@@ -41,6 +41,8 @@
 #include "lvgl.h"
 #include "lv_port_disp.h"
 #include "BC260Y.h"
+#include "work.h"
+#include	"rgb.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -65,9 +67,11 @@ osThreadId startTaskHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
-//?????????????
-SemaphoreHandle_t MutexSemaphore;	//?????????
-
+//互斥信号量句柄
+SemaphoreHandle_t MutexSemaphore;	
+//二值信号量句柄
+	SemaphoreHandle_t DMA_BinarySemaphore;
+	
 osThreadId BC260YTaskHandle;
 osThreadId WorkTaskHandle;
 osThreadId RC522STaskHandle;
@@ -107,9 +111,11 @@ void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackTy
   */
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
-		//?????????????
+		//创建互斥信号量
 	MutexSemaphore=xSemaphoreCreateMutex();
-
+	//创建二值信号量
+	DMA_BinarySemaphore=xSemaphoreCreateBinary();
+	
   /* USER CODE END Init */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -164,12 +170,78 @@ void StartDefaultTask(void const * argument)
 {
   /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
+  //uint16_t num_data;
+  //uint8_t i=0,j=0;
+  //num_data = RESET_PULSE + 10 * 24;
+	ws2812_init(10);// 所有RGB小灯的初始化   --- 10个
+ // ws2812_red(10);
   for(;;)
   {
 		Uart_task();
+    if( execute_work_flag==1)
+    {
+        Motor_Working(3);
+    }
+    else if(execute_work_flag==0 && work_time.working_flag!=2)  //只有在没有工作任务工作时才可关闭
+    {
+      Motor_Working(0);
+    }
+    /*if(i<10)
+    {     
+      //memset(RGB_buffur,0,sizeof(RGB_buffur));
+      for(j=0;j<10;j++)
+      {
+        if(j==i)
+        {
+          ws2812_set_RGB(0x22, 0, 0, i);//0x50  白色最亮
+        }
+        else
+        {
+          ws2812_set_RGB(0x00, 0, 0, j);//0x50  白色最亮
+
+        }
+      }
+      HAL_TIM_PWM_Start_DMA(&htim1,TIM_CHANNEL_2,(uint32_t *)RGB_buffur,(num_data)); 
+      i++;                  
+    }
+    else{
+      i=0;
+    }
+    HAL_Delay(500);*/
+    if(BC260_Massage.BC260Y_CONNECT_FLAG==0)
+    {
+      if(RGB_timer<=500)
+      {
+        ws2812_red(10);
+      }
+      else if (RGB_timer>500 && RGB_timer<1000){
+        ws2812_init(10);
+      }
+    }
+    else{
+        if(Pcd_Massage_Flag.Have_A_Card==PCD_NOTAGERR)
+        {
+          if(RGB_timer<=500)
+          {
+            ws2812_red(10);
+          }
+          else if (RGB_timer>500 && RGB_timer<1000){
+            ws2812_green(10);
+          }       
+        }
+        else
+        {
+          ws2812_green(10);
+        }
+    }
+     if(RGB_timer>1000){
+        RGB_timer=0;
+      }
+  
+
 //    MQTT_Receive_Data();
 //		HAL_IWDG_Refresh(&hiwdg);
-		osDelay(100);
+		osDelay(10);
   }
   /* USER CODE END StartDefaultTask */
 }

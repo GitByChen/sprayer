@@ -171,7 +171,7 @@ static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_colo
 {
     if(disp_flush_enabled) {
         /*The most simple case (but also the slowest) to put all pixels to the screen one-by-one*/
-        #if 1
+        #if 0
         int32_t x;
         int32_t y;
         	uint16_t tmp ;
@@ -195,50 +195,46 @@ static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_colo
                 color_p++;
 							
             }
-        
             LCD_WR_DATA_DMA(Disp_Str_Buff,H_Buf_Size);
             H_Num=0;
         }
-				#else
-				
+		#else
 			uint8_t LCD_BUFFER[LCD_BUFFER_SIZE];
 			uint32_t size = 0, size_remain = 0;	
 			size = (area->x2 - area->x1 + 1) * (area->y2 - area->y1 + 1) * 2;
 			
 			if(size > LCD_BUFFER_SIZE)
 			{
-        size_remain = size - LCD_BUFFER_SIZE;
-        size = LCD_BUFFER_SIZE;
+            size_remain = size - LCD_BUFFER_SIZE;
+            size = LCD_BUFFER_SIZE;
 			}
-			
 				LCD_Address_Set(area->x1,area->y1,area->x2,area->y2);//设置显示范围
 			while(1)
 			{
 				uint16_t i = 0;
 				uint16_t tmp ;
-        for(i = 0; i < size / 2; i++)
-        {
-					tmp = color_p->full;
-          LCD_BUFFER[2 * i] = tmp >> 8;
-          LCD_BUFFER[2 * i + 1] = tmp;
-					color_p++;
-        }
+                for(i = 0; i < size / 2; i++)
+                {
+                    tmp = color_p->full;
+                    LCD_BUFFER[2 * i] = tmp >> 8;
+                    LCD_BUFFER[2 * i + 1] = tmp;
+                    color_p++;
+                }
+                        //LCD_DCX_HIGH;
+                        //LCD_WriteDataBuffer(LCD_BUFFER, size);
+                    LCD_WR_DATA_DMA(LCD_BUFFER,size);
+                if(size_remain == 0)
+                    break;
 
-				//LCD_DCX_HIGH;
-				//LCD_WriteDataBuffer(LCD_BUFFER, size);
-			LCD_WR_DATA_DMA(LCD_BUFFER,size);
-        if(size_remain == 0)
-            break;
-
-        if(size_remain > LCD_BUFFER_SIZE)
-        {
-            size_remain = size_remain - LCD_BUFFER_SIZE;
-        }
-        else
-        {
-            size = size_remain;
-            size_remain = 0;
-        }
+                if(size_remain > LCD_BUFFER_SIZE)
+                {
+                    size_remain = size_remain - LCD_BUFFER_SIZE;
+                }
+                else
+                {
+                    size = size_remain;
+                    size_remain = 0;
+                }
 			}
 			#endif
     }

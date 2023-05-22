@@ -19,6 +19,8 @@ extern BC260_MASSAGE BC260_Massage;
 
 #define AT_Order_Cheak          "AT"           //查询模块是否正常
 #define AT_Order_Cheak_MQTT     "ATI"
+#define AT_Order_CFG             "AT+QMTCFG=\"session\",0,0"      //获取掉电期间服务器下发的消息
+#define AT_Order_QMTCFG          "AT+QMTCFG=\"keepalive\",0,20"   //设置客户端保活时间。范围0-3600 （单位：秒），0：不断开连接
 #define AT_Order_CIMI           "AT+CIMI"      //查询是否有卡
 #define AT_Order_CSQ            "AT+CSQ"       //查询是否有信号
 #define AT_Order_CGATT          "AT+CGATT?"    //查询注册网络情况
@@ -30,17 +32,20 @@ extern BC260_MASSAGE BC260_Massage;
 #define AT_MQTT_QMTOPEN         "AT+QMTOPEN=0,\"120.24.149.179\",1883"   //接入服务器
 #define AT_MQTT_QMTCLOSE        "AT+QMTCLOSE=0"    //关闭服务器
 #define AT_MQTT_QMTDISC        "AT+QMTDISC=0"      //退出登录
-#define AT_MQTT_QMTCONN         "AT+QMTCONN=0,\"%s\",\"nebulizer\",\"ljrh1234\""           //发送模块ID
+#define AT_MQTT_QMTCONN         "AT+QMTCONN=0,\"%s\",\"nebulizer\",\"ljrh1234\""           //登录服务器
 
 #define AT_MQTT_PUB_TIMING_REPORT          "AT+QMTPUB=0,0,0,0,\"ljrh/nebulizer/%s/deviceStatus\"" // 定时广播的主题
-#define AT_MQTT_PUB_WEIGHT_REPORT           "AT+QMTPUB=0,0,0,0,\"ljrh/nebulizer/%s/weightIncrease\"" //上报重量不匹配的广播主题
+#define AT_MQTT_PUB_WEIGHT_ERR_REPORT      "AT+QMTPUB=0,0,0,0,\"ljrh/nebulizer/%s/weightIncrease\"" //上报重量不匹配的广播主题
+#define AT_MQTT_PUB_WEIGHT_REPORT            "AT+QMTPUB=0,0,0,0,\"ljrh/nebulizer/%s/liquidWeight\"" //上报重量广播
 #define AT_MQTT_PUB_TIMING_WAKEUP          "AT+QMTPUB=0,0,0,0,\"%s/BC260Y\"" //我叫什么 在广播
 
 #define AT_MQTT_QMTPUB11          ">" // 广播正常字符
-#define TimerTask                  "AT+QMTSUB=0,1,\"ljrh/nebulizer/%s/task\",1"   //工作时间任务
-#define TimerClearTask             "AT+QMTSUB=0,1,\"ljrh/nebulizer/%s/clearTask\",1"   //工作时间清零任务
+#define TimerTask                   "AT+QMTSUB=0,1,\"ljrh/nebulizer/%s/task\",1"   //工作时间任务
+#define TimerClearTask              "AT+QMTSUB=0,1,\"ljrh/nebulizer/%s/clearTask\",1"   //工作时间清零任务
 #define RtcTask                     "AT+QMTSUB=0,1,\"ljrh/nebulizer/%s/syncDate\",1"   //实时时间同步任务
 #define BindTask                    "AT+QMTSUB=0,1,\"ljrh/nebulizer/%s/bind\",1"        //请求绑定设备
+#define WorktoOnceTask              "AT+QMTSUB=0,1,\"ljrh/nebulizer/%s/execute\",1"         //立刻工作
+
 #define AT_MQTT_QMTSUB              "AT+QMTSUB=0,1"         //订阅
 #define AT_MQTT_QMTPUB              "AT+QMTPUB=0,0,0,0"     //广播
 #define AT_MQTT_QMTUNS              "AT+QMTUNS=0,1"         //退订
@@ -55,10 +60,9 @@ extern BC260_MASSAGE BC260_Massage;
 *|mainStatus |是  |int | 是否启用 1:是  0:否 |
 *|timeStamp |是  |long| 时间戳||
 */
-#define JSON_BC260Y_MASSAGE     "{\"sn\":\"%s\",\"imei\":\"%s\",\"bind\":%d,\"status\":%d,\"timestamp\":\"%d000\",\"weight\":%d}"     //定时上报消息
-#define HX711_Weight_Report      "{\"Card_ID\":%x,\"Weight\":%d}"    //工作完后重量上报
+#define JSON_BC260Y_MASSAGE     "{\"sn\":\"%s\",\"imei\":\"%s\",\"bind\":%d,\"status\":%d,\"timestamp\":\"%d000\"}"     //定时上报消息
+#define HX711_Weight_Report      "{\"sn\":\"%s\",\"weight\":%d,\"timestamp\":\"%d000\"}"    //工作完后重量上报
 #define HX711_Weight_Error_Report "{\"sn\":\"%s\",\"timestamp\":\"%d\"}"
-#define AT_Order_SLEEP          "AT+CPSMS="     //睡眠模式设置
 #define AT_Order_RESP           "OK"            //指令返回
 #define AT_Order_ERROE           "ERROR"        //指令发送失败
 #define AT_RESP_CIMI            "460"           //查询卡号返回
@@ -66,9 +70,6 @@ extern BC260_MASSAGE BC260_Massage;
 #define AT_RESP_CSQ             "AT+CSQ"         //查询网络信号
 #define AT_RESP_INIT            "+IP:"          //判断4G模块是否启动
 #define AT_ORDER                "AT+"           //AT指令
-#define AT_RESP_CGSN             "AT+CGSN="
-#define AT_Order_CFG             "AT+QMTCFG=\"session\",0,0"
-#define AT_Order_QMTCFG          "AT+QMTCFG=\"keepalive\",0,20"
 #define AT_MQTT_RESP_QMTOPEN    "+QMTOPEN: 0,0"     //接入指令返回字符
 #define AT_MQTT_RESP_QMTCLOSE    "+QMTCLOSE: 0,0"     //关闭指令返回字符
 #define AT_MQTT_RESP_QMTDISC    "+QMTDISC: 0,0"     //退出指令返回字符
@@ -90,13 +91,13 @@ extern u8 g_mqtt_init_ok;          //判断是否MQTT初始化完成
 void Mqtt_BC260Y_Task_Init(void);
 void MQTT_Receive_Data(void);
 u8 Clear_Buffer(const char *resp,u8 timeout);     //清楚缓存
-u8    BC260Y_Init(void);  //对设备初始化
-void    MQTT_Init(void);    //mqtt初始化
-u8 MQTT_REST(void);        //MQTT复位
+u8 BC260Y_Init(void);  //对设备初始化
 u8 MQTT_QMTOPEN(void);     //连接服务器
 u8 MQTT_QMTCLOSE(void);     //关闭连接服务器
 u8 MQTT_QMTCONN(void);     //登录服务器
 u8 MQTT_QMTCLOSE(void);    //退出服务器
+void Set_EchoMode(void);    //设置为不回显输入数据
+void Send_Err_reconnect(void);//发送错误，进行重连
 
 void mqtt_Sub(void);       //MQTT总订阅
 

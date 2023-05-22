@@ -164,10 +164,11 @@ float Get_Weight(void)
 {
 	HX711_Massage.Weight=0;
 	HX711_Massage.HX711_Weight_Value = HX711_Value_Dispose();
+	printf("base=%d,real val=%d\r\n",HX711_Massage.Base_Weight_Value,HX711_Massage.HX711_Weight_Value);
 	if(HX711_Massage.HX711_Weight_Value > HX711_Massage.Base_Weight_Value)			
 	{
 		HX711_Massage.Weight = (HX711_Massage.HX711_Weight_Value-HX711_Massage.Base_Weight_Value)/HX711_Massage.K;
-		HX711_Massage.Write_To_Card_Weight=(u16)((HX711_Massage.Weight)+0.5f);		//+0.5 进行四舍五入 
+		HX711_Massage.Write_To_Card_Weight=(u16)(HX711_Massage.Weight+0.5f);		//+0.5 进行四舍五入 
 		printf("重量值是：%d\r\n",HX711_Massage.Write_To_Card_Weight);
 		 Pcd_Massage_Flag.Pcd_Write_Flag=1;//写标志位置1，将最新的重量写进卡里
 	}
@@ -179,7 +180,7 @@ float Get_Weight(void)
 */
 void Write_Weight_To_Card(void)
 {
-		u8  sendbuf[2];		//将重量分成两个字节写进卡内
+	u8  sendbuf[2];		//将重量分成两个字节写进卡内
 	unsigned char snr=1;
 	sendbuf[0]= HX711_Massage.Write_To_Card_Weight >>8;
 	sendbuf[1]=(u8)HX711_Massage.Write_To_Card_Weight;
@@ -229,34 +230,4 @@ u16 Weight_Decode(u8* weight)
 		return 1;
 	}
 }
-/*void HX711_task(void* pvParameters )
-{
-	HX711_Massage.K=((((HX711_VAVDD)/HX711_BEARING)*HX711_GAIN)*HX711_24BIT)/HX711_BASE_VDD;      //计算转换的K值
-    HX711_Massage.K/=HX711_K_VALUE;
-	if(HX711_Massage.Base_Weight_Value==0)
-	{
-		Get_WeightBase();
-	}
-	for( ; ; ) 	
-	{
-		if(exti_key==1)		//按键清零、去皮
-		{
-			exti_key=0;
-			Get_WeightBase();
-			printf("去皮\r\n");
-		}
-		vTaskDelay(200);
-	}
-    
-}
 
-void HX711_Task_Init(void)
-{
-	xTaskCreate((	TaskFunction_t) HX711_task,					//任务2函数
-						(const char * 	)"HX711_task",			//任务2函数名
-						(uint16_t 			)HX711_STK_SIZE,		//任务2堆栈数
-						(void * 				)NULL ,			//传入函数参数
-						(UBaseType_t 		)HX711_TASK_PRIO,	//任务2优先级
-						(TaskHandle_t * )&HX711_Handler );	//取址
-
-}*/

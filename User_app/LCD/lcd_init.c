@@ -9,7 +9,7 @@
 void LCD_WR_DATA_DMA(uint8_t *buf,uint32_t buf_size)
 {
 		LCD_DC_Set();//写数据
-		HAL_SPI_Transmit(&ST7789_LCD_SPI_DMA, buf, buf_size,0xffff);
+			HAL_SPI_Transmit(&ST7789_LCD_SPI_DMA, buf, buf_size,0xffff);
 }
 void LCD_Writ_Bus(u8 dat) 
 {	
@@ -120,8 +120,8 @@ void LCD_Address_Set(u16 x1,u16 y1,u16 x2,u16 y2)
 		LCD_WR_DATA(x1);
 		LCD_WR_DATA(x2);
 		LCD_WR_REG(0x2b);//行地址设置
-		LCD_WR_DATA(y1-255);
-		LCD_WR_DATA(y2-255);
+		LCD_WR_DATA(y1-256);
+		LCD_WR_DATA(y2-256);
 		LCD_WR_REG(0x2c);//储存器写
 	}
 }
@@ -148,87 +148,11 @@ void LCD_Init(void)
 	else if(USE_HORIZONTAL==1)LCD_WR_DATA8(0xC0);
 	else if(USE_HORIZONTAL==2)LCD_WR_DATA8(0x70);
 	else LCD_WR_DATA8(0xA0);
-/*
-	LCD_WR_REG(0x3A);
+
+	LCD_WR_REG(0x3A); 	//定义RGB图像数据的格式
 	LCD_WR_DATA8(0x05);
 
-	LCD_WR_REG(0xB2);
-	LCD_WR_DATA8(0x0C);
-	LCD_WR_DATA8(0x0C);
-	LCD_WR_DATA8(0x00);
-	LCD_WR_DATA8(0x33);
-	LCD_WR_DATA8(0x33); 
-
-	LCD_WR_REG(0xB7); 
-	LCD_WR_DATA8(0x35);  
-
-	LCD_WR_REG(0xBB);
-	LCD_WR_DATA8(0x35);
-
-	LCD_WR_REG(0xC0);
-	LCD_WR_DATA8(0x2C);
-
-	LCD_WR_REG(0xC2);
-	LCD_WR_DATA8(0x01);
-
-	LCD_WR_REG(0xC3);
-	LCD_WR_DATA8(0x13);   
-
-	LCD_WR_REG(0xC4);
-	LCD_WR_DATA8(0x20);  
-
-	LCD_WR_REG(0xC6); 
-	LCD_WR_DATA8(0x0F);    
-
-	LCD_WR_REG(0xD0); 
-	LCD_WR_DATA8(0xA4);
-	LCD_WR_DATA8(0xA1);
-
-	LCD_WR_REG(0xD6); 
-	LCD_WR_DATA8(0xA1);
-
-	LCD_WR_REG(0xE0);
-	LCD_WR_DATA8(0xF0);
-	LCD_WR_DATA8(0x00);
-	LCD_WR_DATA8(0x04);
-	LCD_WR_DATA8(0x04);
-	LCD_WR_DATA8(0x04);
-	LCD_WR_DATA8(0x05);
-	LCD_WR_DATA8(0x29);
-	LCD_WR_DATA8(0x33);
-	LCD_WR_DATA8(0x3E);
-	LCD_WR_DATA8(0x38);
-	LCD_WR_DATA8(0x12);
-	LCD_WR_DATA8(0x12);
-	LCD_WR_DATA8(0x28);
-	LCD_WR_DATA8(0x30);
-
-	LCD_WR_REG(0xE1);
-	LCD_WR_DATA8(0xF0);
-	LCD_WR_DATA8(0x07);
-	LCD_WR_DATA8(0x0A);
-	LCD_WR_DATA8(0x0D);
-	LCD_WR_DATA8(0x0B);
-	LCD_WR_DATA8(0x07);
-	LCD_WR_DATA8(0x28);
-	LCD_WR_DATA8(0x33);
-	LCD_WR_DATA8(0x3E);
-	LCD_WR_DATA8(0x36);
-	LCD_WR_DATA8(0x14);
-	LCD_WR_DATA8(0x14);
-	LCD_WR_DATA8(0x29);
-	LCD_WR_DATA8(0x32);
-
-	LCD_WR_REG(0x20); 
-  
-  	LCD_WR_REG(0x11);
-  	HAL_Delay(120);	
-	LCD_WR_REG(0x29);
-	*/
-	LCD_WR_REG(0x3A); 
-	LCD_WR_DATA8(0x05);
-
-	LCD_WR_REG(0xB2);
+	LCD_WR_REG(0xB2);	//定义MCU可以访问的帧内存区域。
 	LCD_WR_DATA8(0x0C);
 	LCD_WR_DATA8(0x0C);
 	LCD_WR_DATA8(0x00);

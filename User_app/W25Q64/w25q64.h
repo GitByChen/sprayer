@@ -135,9 +135,6 @@ extern SPI_HandleTypeDef hspi1;
 #define BindFlag_DATA_FLASH_BASE    HX711_WEIGHT_DATA_FLASH_BASE+HX711_WEIGHT_DATA_SIZE+10           //设备绑定状态存放地址
 #define BindFlag_DATA_SIZE          sizeof(BC260_Massage.bindFlag)  //值占用内存大小
 
-#define MQTT_SN_DATA_FLASH_BASE    BindFlag_DATA_FLASH_BASE+BindFlag_DATA_SIZE+10           //SN号存放地址
-#define MQTT_SN_DATA_SIZE          sizeof(BC260_Massage.BC260_SN)  //值占用内存大小
-
 uint8_t BSP_W25Qx_Init(void);
 static void	BSP_W25Qx_Reset(void);
 static uint8_t BSP_W25Qx_GetStatus(void);

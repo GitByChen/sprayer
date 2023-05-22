@@ -38,8 +38,6 @@ extern lv_obj_t * ui_ThirdLabel;
 extern lv_obj_t * ui_Percent1;
 
 
-
-
 void nextrunning_val(int val);
 void DisplayWifi(int val);
 void DisplaySwitch(int val);

@@ -28,7 +28,10 @@ typedef struct
 	u16 working_interval_time;	//工作间隔时间计数
 }_work_time;
 extern _work_time work_time; 
-	
+
+extern	u8 execute_work_flag;	//立刻工作的标志位
+extern	u16	execute_work_time;	//立即工作计时
+
 extern u8 const mon_table[12];	//月份日期数据表
 int32_t time_to_timestamp(void);
 char * get_time_ms(void);

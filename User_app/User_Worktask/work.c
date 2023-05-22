@@ -22,6 +22,9 @@ extern SemaphoreHandle_t MutexSemaphore;	//互斥信号量
 _work_time work_time={0,0,0,0,0,0,0}; 		//存放时间合并后的字符，用于与Cjson数据比较  
 extern	RTC_DateTypeDef GetData;    //日期
 extern	RTC_TimeTypeDef GetTime;    //时间
+/*
+*获取秒时间戳
+*/
 int32_t time_to_timestamp(void)
 {
 	struct tm stm;
@@ -85,6 +88,11 @@ u8 RTC_Get_Week(u16 year,u8 month,u8 day)
 	return(temp2%7);
 }
 */
+
+
+/*
+*判断今天有没有任务
+*/
 u8 scan_work_day(u8 Num)
 {
 	u8 work_i=0,work_t=0;
@@ -100,15 +108,14 @@ u8 scan_work_day(u8 Num)
 }
 void work_task(void const * argument )
 {
-	static u8 minute_interval_Cheak=0,minute_Cheak=0;
+	static u8 minute_interval_Cheak=0,minute_Cheak=0; //判断在时间范围内，是否已经判断过了
 	for( ; ; ) 
 	{	
 //		xSemaphoreTake(MutexSemaphore,portMAX_DELAY);		//获取互斥信号量
-	//		calendar.week=RTC_Get_Week(GetData.Year+2000,GetData.Month,GetData.Date);//获取星期
 //	printf("%d-%d-%d %d:%d:%d\n",GetData.Year,GetData.Month,GetData.Date,GetTime.Hours,GetTime.Minutes,GetTime.Seconds);//输出闹铃时间
 		if(Pcd_Massage_Flag.Have_A_Card==PCD_OK)
 		{
-			if((work_time.work_time_flag==0 && GetTime.Seconds<=30 && minute_Cheak==0) )	//每天0点检查是否有工作组工作
+			if((work_time.work_time_flag==0 && GetTime.Seconds<=40 && minute_Cheak==0) )	//每天0点检查是否有工作组工作
 			{
 				minute_Cheak=1;		//每分钟检查一次完成
 				work_time.which_working_time=0;//对记录值进行清零
@@ -116,8 +123,10 @@ void work_task(void const * argument )
 				{	                       
 					if(scan_work_day(work_time.which_working_time)==1)
 					{	
-						if((GetTime.Hours*60 +GetTime.Minutes)==(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_start_hour*60 +Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_start_min) 
-							&& Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].once_task==1)
+						if((GetTime.Hours*60 +GetTime.Minutes)==
+							(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_start_hour*60 +
+							 Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_start_min) 
+							&& Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].once_task==1)		//单次任务只判断开始时间
 						{
 								if(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].status==1 && work_time.working_once==0)
 								{
@@ -125,18 +134,15 @@ void work_task(void const * argument )
 									ui_event_cb=run_static;  //触发一次事件
 									work_time.working_flag=0;
 									printf("在第%d个工作组工作\r\n",work_time.which_working_time);
-									break;
-								}
-								else
-								{
-									work_time.work_time_flag=0;
-									work_time.working_once=0;
-									work_time.which_working_time++;	//记录哪个工作组在工作
-								}														
-							
+									break;//符合要求直接退出while
+								}	
 						}
-						else if((GetTime.Hours*60 +GetTime.Minutes)>=(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_start_hour*60 +Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_start_min) && 
-							(GetTime.Hours*60 +GetTime.Minutes)<=(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_end_hour *60 +Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_end_min))
+						else if((GetTime.Hours*60 +GetTime.Minutes)>=
+								(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_start_hour*60 +
+								Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_start_min) && 
+							(GetTime.Hours*60 +GetTime.Minutes)<=
+								(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_end_hour *60 +
+								Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_end_min))
 						{
 							if(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].status==1)
 							{
@@ -144,33 +150,15 @@ void work_task(void const * argument )
 								work_time.working_flag=0;
 								ui_event_cb=run_static;  //触发一次事件
 								printf("在第%d个工作组工作\r\n",work_time.which_working_time);
-								break;
+								break;//符合要求直接退出while
 							}
-							else
-							{
-								work_time.work_time_flag=0;
-								work_time.working_once=0;
-								work_time.which_working_time++;	//记录哪个工作组在工作
-							}														
+														
 						}
-						else
-						{
-							work_time.work_time_flag=0;
-							work_time.working_once=0;
-							work_time.which_working_time++;	//记录哪个工作组在工作
-						}
-				
 					}
-					else
-					{
 						work_time.work_time_flag=0;
 						work_time.working_once=0;
-						work_time.which_working_time++;	//记录哪个工作组在工作				
-					}
-					
-					
+						work_time.which_working_time++;	//记录哪个工作组在工作									
 				}
-
 				if(work_time.work_time_flag!=1)
 				{
 					work_time.which_working_time=0xff;	//没有工作组符合
@@ -192,17 +180,21 @@ void work_task(void const * argument )
 						{	
 							if(work_time.working_once==1){
 								memset(&work_time,0,sizeof(work_time));//如果时间过了 ，复位重新判断
-								ui_event_cb=run_static; //触发一次工作状态事件						
+								ui_event_cb=run_static; //触发一次工作状态事件	
 							}												
 							
 						}
-						else if((GetTime.Hours*60 +GetTime.Minutes)<(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_start_hour*60 +Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_start_min) || 
-								(GetTime.Hours*60 +GetTime.Minutes)>(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_end_hour *60 +Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_end_min))
+						else if((GetTime.Hours*60 +GetTime.Minutes)<
+						(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_start_hour*60 +
+						Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_start_min) || 
+								(GetTime.Hours*60 +GetTime.Minutes)>
+						(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_end_hour *60 +
+						Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_end_min))
 							{
 								if(work_time.working_flag==0 ||work_time.working_flag==3)			//如果现在是间隔时间内或者过了时间也要等本次工作完成后再复位
 								{
 									memset(&work_time,0,sizeof(work_time));//如果时间过了 ，复位重新判断
-									ui_event_cb=run_static; //触发一次工作状态事件	
+									ui_event_cb=run_static; //触发一次工作状态事件
 								}	
 							}
 					}
@@ -215,8 +207,6 @@ void work_task(void const * argument )
 						}	
 					}
 
-				if(work_time.work_time_flag==1)
-				{
 					if(work_time.working_flag==3 && work_time.working_once==0)		//工作完成计时下一次工作,只有工作完并且不是不是单次任务才计数
 					{
 						if((work_time.working_interval_time)>=Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].interval_time)
@@ -233,25 +223,26 @@ void work_task(void const * argument )
 						
 					}
 
-					if(work_time.working_flag==0 )  //在工作时间内，并确认此工作组为启用状态
-					{
-						work_time.working_flag=1;		//时间段到了，工作标志位置1
-						//Pcd_Massage_Flag.Pcd_Read_Flag=0; 			//工作开始，清除读卡标志位，进行读卡
-						//Pcd_Massage_Flag.Pcd_Write_Flag=1;				//工作，更新写卡标志位，去写卡
-					} 
-				}
+					 
 			}			
 			else if(GetTime.Seconds>=40 && minute_interval_Cheak==1)
 			{
 				minute_interval_Cheak=0;
 			}
-			if(work_time.working_flag==1 &&Pcd_Massage_Flag.Pcd_Write_Flag==3) //要上报重量完成再工作
+
+			if(work_time.working_flag==0 && work_time.work_time_flag==1)  //在工作时间内，并确认此工作组为启用状态
+			{
+				work_time.working_flag=1;		//时间段到了，工作标志位置1
+				//Pcd_Massage_Flag.Pcd_Read_Flag=0; 			//工作开始，清除读卡标志位，进行读卡
+				//Pcd_Massage_Flag.Pcd_Write_Flag=1;				//工作，更新写卡标志位，去写卡
+			}
+			else if(work_time.working_flag==1 && Pcd_Massage_Flag.Pcd_Write_Flag==3) //要上报重量完成再工作
 			{
 					work_time.working_flag=2;
-					work_time.working_interval_time=1;			//工作开始，同时开始计数间隔时间
+					work_time.working_interval_time=0;			//工作开始，同时开始计数间隔时间
 					work_time.working_time=0;					//工作时间计数清零，开始工作
 					Motor_Working(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].gears);
-				HAL_UART_Transmit(&huart3,(u8*)"工作!", strlen("工作!"), 100);    //
+					HAL_UART_Transmit(&huart3,(u8*)"工作!", strlen("工作!"), 100);    //
 			}
 			else if(work_time.working_flag==2)
 			{
@@ -283,33 +274,7 @@ void work_task(void const * argument )
 		{
 			memset(&work_time,0,sizeof(work_time));//如果没有卡 ，复位重新判断
 
-		}
-		/*switch (calendar.week)
-		{
-		case 1:
-			work_time.week="星期一";
-			break;
-		case 2:
-			work_time.week="星期二";
-			break;
-		case 3:
-			work_time.week="星期三";
-			break;
-		case 4:
-			work_time.week="星期四";
-			break;
-		case 5:
-			work_time.week="星期五";
-			break;
-		case 6:
-			work_time.week="星期六";
-			break;
-		case 7:
-			work_time.week="星期日";
-			break;
-		default:
-			break;
-		}*/		
+		}	
 //		xSemaphoreGive(MutexSemaphore);					//释放信号量
 		vTaskDelay(1000);
 	}

@@ -357,7 +357,7 @@ void PCD_Init(void)
 *                 PICC_REQALL：寻天线区内全部卡
 *               -pCardType：用于保存卡片类型
 * 出口参数：-pCardType：卡片类型
-*                               0x4400：Mifare_UltraLight
+*                       0x4400：Mifare_UltraLight
 *                       0x0400：Mifare_One(S50)
 *                       0x0200：Mifare_One(S70)
 *                       0x0800：Mifare_Pro(X)
@@ -791,27 +791,16 @@ char WaitCardOff(void)
 {
 	char          status;
   unsigned char	TagType[4];
-
-	status = PCD_Request(PICC_REQALL, TagType);
-		if(status==PCD_NOTAGERR)
+    uint8_t temp;
+    for(temp=0;temp<5;temp++)
     {
-        status = PCD_Request(PICC_REQALL, TagType);
-			if(status==PCD_NOTAGERR)
+ 	    status = PCD_Request(PICC_REQALL, TagType);
+        if(status!=PCD_NOTAGERR)
         {
-            status = PCD_Request(PICC_REQALL, TagType);
-						if(status==PCD_NOTAGERR)
-            {
-                return PCD_NOTAGERR;
-            }
-            else
-                return PCD_OK;
-        }
-        else
             return PCD_OK;
+        }
     }
-    else
-        return PCD_OK;
-
+    return PCD_NOTAGERR;
 }
 
 /**
@@ -825,8 +814,9 @@ char WaitCardOff(void)
 void RC522Stask(void* pvParameters )
 {
     unsigned char pcd_addr;
-    u8 buf[2]={0,0},Legal_status=0;
-    u8 disp_val=0;      //由于需要一直扫描是否有卡，变量用于限制扫描时触发刷新事件的次数
+    u8 buf[2]={0,0};
+    u8 Legal_status=0;  //用作当检测有卡时，限制只进行一次判断重量是否正确
+    u8 disp_val=0;      //由于需要一直扫描是否有卡，变量用于限制扫描时触发刷新事件的次数 
     	
 	HX711_Massage.K=((((HX711_VAVDD)/HX711_BEARING)*HX711_GAIN)*HX711_24BIT)/HX711_BASE_VDD;      //计算转换的K值
     HX711_Massage.K/=HX711_K_VALUE;
@@ -837,7 +827,7 @@ void RC522Stask(void* pvParameters )
 
     for( ; ; ) 
     { 
-//			 xSemaphoreTake(MutexSemaphore,portMAX_DELAY);	//获取互斥信号量
+//		xSemaphoreTake(MutexSemaphore,portMAX_DELAY);	//获取互斥信号量
         Pcd_Massage_Flag.Have_A_Card=WaitCardOff(); //检测是否有卡
         
         if(Pcd_Massage_Flag.Have_A_Card==PCD_NOTAGERR )        //检测卡是否离开
@@ -854,6 +844,7 @@ void RC522Stask(void* pvParameters )
                 Legal_status=0;
                 readCard_delay=0;
                 Motor_Working(0);
+				printf("no card\r\n");
             }                
         }
         else if(Pcd_Massage_Flag.Pcd_Read_Flag==0 && Pcd_Massage_Flag.Have_A_Card==PCD_OK && readCard_delay>=6)  //检测到卡之后等3S再读写卡
@@ -874,6 +865,7 @@ void RC522Stask(void* pvParameters )
                         //Pcd_Massage_Flag.Pcd_Read_Card_Werght=((u16)buf[0])<<8 | (u16)buf[1];                   
                         printf("读到的值是： %d\n",Pcd_Massage_Flag.Pcd_Read_Card_Werght);						
                     }
+                    
                 }
 								
            }                               
@@ -884,64 +876,54 @@ void RC522Stask(void* pvParameters )
                 {              
                     if(HX711_Massage.Write_To_Card_Weight>=Pcd_Massage_Flag.Pcd_Read_Card_Werght)       //判断药水重量是否一致，
                     {
-                        if((HX711_Massage.Write_To_Card_Weight-Pcd_Massage_Flag.Pcd_Read_Card_Werght)>300)
-                        {
+                        if((HX711_Massage.Write_To_Card_Weight-Pcd_Massage_Flag.Pcd_Read_Card_Werght)>100){
                             Pcd_Massage_Flag.Pcd_Legal_Flag=2;
                             BC260_Massage.send_error=1;
                         }
-                        else
-                        {
-                            Pcd_Massage_Flag.Pcd_Legal_Flag=1;
-                            
+                        else{
+                            Pcd_Massage_Flag.Pcd_Legal_Flag=1;                           
                         }
                     }
                     else
                     {
-                        if((Pcd_Massage_Flag.Pcd_Read_Card_Werght-HX711_Massage.Write_To_Card_Weight)>300)
-                        {
+                        if((Pcd_Massage_Flag.Pcd_Read_Card_Werght-HX711_Massage.Write_To_Card_Weight)>100){
                             Pcd_Massage_Flag.Pcd_Legal_Flag=2;
                              BC260_Massage.send_error=1;
                         }
-                        else
-                        {
-                            Pcd_Massage_Flag.Pcd_Legal_Flag=1;
-                            
+                        else{
+                            Pcd_Massage_Flag.Pcd_Legal_Flag=1;    
                         }
                     }
 
-                    //    if(Pcd_Massage_Flag.Pcd_Legal_Flag==1)
-                    //    {
-                    //        beep_on();
-                    //        vTaskDelay(300);	
-                    //        beep_off();
-                    //         memset(&work_time,0,sizeof(work_time));//每次重新放上后都要复位重新判断
-                    //    }
-                    //    else
-                    //    {
-                    //        u8 num=0;
-                    //        for(num=0;num<3;num++)
-                    //        {
-                    //            beep_on();
-                    //            vTaskDelay(300);	
-                    //            beep_off();
-                    //            vTaskDelay(300);
-                    //        }
-                    //    }
+                        if(Pcd_Massage_Flag.Pcd_Legal_Flag==1)
+                        {
+                            beep_on();
+                            vTaskDelay(300);	
+                            beep_off();
+                             memset(&work_time,0,sizeof(work_time));//每次重新放上后都要复位重新判断
+                        }
+                        else
+                        {
+                           u8 num=0;
+                           for(num=0;num<3;num++)
+                            {
+                                beep_on();
+                                vTaskDelay(200);	
+                                beep_off();
+                                vTaskDelay(200);
+                            }
+                        }
                         
-                }
-                
+                }                
             }
             if(Pcd_Massage_Flag.Pcd_Write_Flag==1 && Pcd_Massage_Flag.Pcd_Legal_Flag==1)//Pcd_Write_Flag在准备工作前赋值1
             {
+                Legal_status=1;   //状态置1，等卡离开再置0  
+                readCard_delay=0;                                  
                 Write_Weight_To_Card();              
                 ui_event_cb=surplus_change; //触发一次剩余量刷新事件
             }
-            if(Pcd_Massage_Flag.Pcd_Legal_Flag==1 )
-                {
-                    Legal_status=1;   //状态置1，等卡离开再置0                    
-                    readCard_delay=0;
-                }
-            else if(Pcd_Massage_Flag.Pcd_Read_Flag==1 && Pcd_Massage_Flag.Card_Modal==1)//用于手动写卡
+            if(Pcd_Massage_Flag.Pcd_Read_Flag==1 && Pcd_Massage_Flag.Card_Modal==1)//用于手动写卡
             {
                 Get_Weight();
                 
@@ -966,26 +948,8 @@ void RC522Stask(void* pvParameters )
                       
             }
 
-        }
-				// if(Pcd_Massage_Flag.Have_A_Card==PCD_ERR)
-				// {
-						//if(aval==0)
-						//{
-						//	ui_event_cb=surplus_change; //触发一次剩余量刷新事件
-						//	aval=1;								
-						//}
-			    //}
-				//else
-				//{
-				//	if(aval==1)
-				//	{
-				//			ui_event_cb=surplus_change; //触发一次剩余量刷新事件
-				//			aval=0;								
-				//	}
-				//}
-					
-				
-//				 xSemaphoreGive(MutexSemaphore);					//释放信号量      
+        }				
+//		xSemaphoreGive(MutexSemaphore);					//释放信号量      
         vTaskDelay(500);	
     }		
 }

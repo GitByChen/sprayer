@@ -374,10 +374,5 @@ void Flash_Data_Init(void)
 	{
 		BC260_Massage.bindFlag=0;
 	}
-	BSP_W25Qx_Read((u8*)&BC260_Massage.BC260_SN,MQTT_SN_DATA_FLASH_BASE,MQTT_SN_DATA_SIZE);
-	if(strstr(BC260_Massage.BC260_SN,"MPN")==0)
-	{
-		memset(&BC260_Massage.BC260_SN,0,sizeof(BC260_Massage.BC260_SN));
-	}
  }
 

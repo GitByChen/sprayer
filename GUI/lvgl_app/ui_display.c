@@ -67,6 +67,8 @@ typedef struct _lv_clock
     lv_obj_t *weekday_label; // 星期标签
 }lv_clock_t;
 
+///////////////////// FUNCTIONS ////////////////////
+
 
 static void clock_date_task_callback(lv_timer_t *timer)
 {
@@ -105,10 +107,10 @@ static void clock_date_task_callback(lv_timer_t *timer)
 ///////////////////// SCREENS ////////////////////
 void ui_Screen1_screen_init(void)
 {
-	    static lv_style_t style;
+	static lv_style_t style;
     lv_style_init(&style);
     lv_style_set_radius(&style, 0);
-    /*Make a gradient*/
+    //Make a gradient
     lv_style_set_width(&style, 320);
     lv_style_set_height(&style,240 );
 		
@@ -119,10 +121,6 @@ void ui_Screen1_screen_init(void)
 	ui_Screen1 = lv_obj_create(lv_scr_act());
 	 lv_obj_add_style(ui_Screen1, &style, 0);
 
-	
-//    ui_Screen1 = lv_obj_create(NULL);
-//    lv_obj_clear_flag(ui_Screen1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-
     ui_BG = lv_img_create(ui_Screen1);
     lv_img_set_src(ui_BG, &ui_img_background_png);
     lv_obj_set_width(ui_BG, LV_SIZE_CONTENT);   /// 1
@@ -131,7 +129,7 @@ void ui_Screen1_screen_init(void)
 //    lv_obj_add_flag(ui_BG, LV_OBJ_FLAG_ADV_HITTEST);     /// Flags
     lv_obj_clear_flag(ui_BG, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_img_set_angle(ui_BG, 2);
-    lv_img_set_zoom(ui_BG, 2560);
+    lv_img_set_zoom(ui_BG, 2550);
 
     ui_LableWiFi = lv_label_create(ui_Screen1);
     lv_obj_set_width(ui_LableWiFi, LV_SIZE_CONTENT);   /// 1
@@ -331,6 +329,7 @@ void ui_Screen1_screen_init(void)
     lv_label_set_text(ui_Percent1,USER_PERCENT1 );//"	"
     lv_obj_set_style_text_font(ui_Percent1, &ui_font_confont16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    //lv_obj_add_event_cb(ui_Panel1, ui_event_Panel1, LV_EVENT_ALL, NULL);
 
 }
 
@@ -354,11 +353,12 @@ void qc_init(void)
 	lv_obj_clear_flag(qc_module, LV_OBJ_FLAG_HIDDEN);      /// Flags
 
     lv_obj_add_event_cb(qc_module,qc_event_cb,LV_EVENT_COVER_CHECK,NULL);
-    
+
     lv_obj_t *qc_disp;
     qc_disp=lv_qrcode_create(qc_module,200,lv_color_make(0xff,0xff,0xff),lv_color_make(0x00,0x00,0x00));
 	lv_qrcode_update(qc_disp,BC260_Massage.BC260_SN,strlen(BC260_Massage.BC260_SN));
     lv_obj_center(qc_disp);
+
 }
 
 void ui_init(void)
@@ -370,5 +370,7 @@ void ui_init(void)
                                                true, LV_FONT_DEFAULT);
     lv_disp_set_theme(dispp, theme);
     ui_Screen1_screen_init();
-   // lv_disp_load_scr(ui_Screen1);
+    //qc_init();
+    //ui____initial_actions0 = lv_obj_create(NULL);
+    //lv_disp_load_scr(ui_Screen1);
 }

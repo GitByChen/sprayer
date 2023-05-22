@@ -68,7 +68,7 @@
 
 ##### 请求示例
 ```json
-{"week":"xxxx","week":"yyyy-MM-dd hh:mm:ss"}
+{"week":"xxxx","date":"yyyy-MM-dd hh:mm:ss"}
 ```
 
 ##### 接口定义
@@ -168,20 +168,57 @@
 
 |参数名|必选|类型|说明|
 |:----    |:---|:----- |-----   |
-|deviceSn |是  |string |设备SN号   |
-|deviceImei |是  |string | 设备IMEI号    |
-|bindFlag |是  |int | 设备是否绑定 1:是  0:否    |
-|mainStatus |是  |int | 是否启用 1:是  0:否 |
+|sn |是  |string |设备SN号   |
+|imei |是  |string | 设备IMEI号    |
+|bind |是  |int | 设备是否绑定 1:是  0:否    |
+|status |是  |int | 是否启用 1:是  0:否 |
 |weight |是  |int |  液体重量 |
-|timeStamp |是  |long| 时间戳||
+|timestamp |是  |long| 时间戳||
 
 ##### 请求示例
 ```json
  {
-	"deviceSn":"MPN22E4040395690P",
-	"deviceImei":"860387066315086",
-	"bindFlag":1,
-	"mainStatus":1,
+	"sn":"MPN22E4040395690P",
+	"imei":"860387066315086",
+	"bind":1,
+	"status":1,
+	"timestamp":1670384066
+}
+ 
+```
+
+##### 接口定义
+
+- 设备定时向服务器报送当前状态
+- QOS:0 定时报告不必确定服务器必须收到
+
+
+
+
+## 设备上传当前液体重量(新增的接口)
+
+- 设备上传当前液体重量
+
+##### 请求Topic
+- ` ljrh/nebulizer/{deviceSn}/liquidWeight`
+- `QOS:0`
+``` 
+    sn:当前设备sn号
+    weight:当前液体重量
+    timestamp:时间戳
+```
+
+##### 参数
+
+|参数名|必选|类型|说明|
+|:----    |:---|:----- |-----   |
+|sn |是  |string |设备SN号   |
+|weight |是  |int |  液体重量 |
+|timestamp |是  |long| 时间戳||
+##### 请求示例
+```json
+ {
+	"sn":"MPN22E4040395690P",
 	"timestamp":1670384066,
     "weight":480
 }
@@ -190,5 +227,40 @@
 
 ##### 接口定义
 
-- 设备定时向服务器报送当前状态
+- 设备上传当前液体重量
+- QOS:0 定时报告不必确定服务器必须收到
+
+
+
+
+## 执行喷雾动作
+
+- 执行喷雾动作
+
+##### 请求Topic
+- ` ljrh/nebulizer/{deviceSn}/execute`
+- `QOS:0`
+``` 
+    sn:当前设备sn号
+    timestamp:时间戳
+```
+
+##### 参数
+
+|参数名|必选|类型|说明|
+|:----    |:---|:----- |-----   |
+|sn |是  |string |设备SN号   |
+|timestamp |是  |long| 时间戳||
+##### 请求示例
+```json
+ {
+	"sn":"MPN22E4040395690P",
+	"timestamp":1670384066
+}
+ 
+```
+
+##### 接口定义
+
+- 设备上传当前液体重量
 - QOS:0 定时报告不必确定服务器必须收到

@@ -33,7 +33,7 @@ void Uart_task(void)
 //			printf("%s\r\n",UART3_RX_Buffer);		
 			strcpy((char*)buffer,(char *)UART3_RX_Buffer);
 			UART3_RX_STA = 0;
-			memset(&UART3_RX_Buffer,0,sizeof(UART3_RX_Buffer));				//清除接收
+			memset(UART3_RX_Buffer,0,sizeof(UART3_RX_Buffer));				//清除接收
 				if(strstr((const char*)buffer,CHEAK_TASK)!=0)
 				{	
 					for(ret=0;ret<Cjson_Buf.size;ret++)
@@ -221,18 +221,15 @@ uint8_t ParseStr(const char *JSON,TPYE CJSON_TASK_TPYE)
                     str_single  = 	cJSON_GetObjectItem(task_json,SINGLE);	        //任务状态
                     while(strcmp(task_no,Cjson_Buf.Cjson_Buffer_Data[no_num].task_no)!=0)   //找对应的任务编号进行修改
                     {
-                        if(no_num<Cjson_Buf.size)
+                        if(no_num<Cjson_Buf.size){
                             no_num++;
-                        else
-                        {
+                        }else{
                             break;
                         }
                     }
-                    printf("num=%d",no_num);
                     if(no_num<Cjson_Buf.size)
                     {
-                        strcpy(Cjson_Buf.Cjson_Buffer_Data[no_num].timestart,time_start);
-                        
+                        strcpy(Cjson_Buf.Cjson_Buffer_Data[no_num].timestart,time_start);                       
                         strcpy(Cjson_Buf.Cjson_Buffer_Data[no_num].task_no,task_no);
                         //strcpy((char*)Cjson_Buf.Cjson_Buffer_Data[no_num.work_day,(char*)work_day);
                         for(i=0;i<7;i++)
@@ -269,16 +266,14 @@ uint8_t ParseStr(const char *JSON,TPYE CJSON_TASK_TPYE)
                     str_no = cJSON_GetObjectItem(task_json, NO);   //解析任务编号
                     task_no=str_no->valuestring;
 
-                    while(strcmp(task_no,Cjson_Buf.Cjson_Buffer_Data[no_num].task_no)!=0)   //找对应的任务编号进行删除
+                    while(strcmp(task_no,Cjson_Buf.Cjson_Buffer_Data[no_num].task_no)==0)   //找对应的任务编号进行删除
                     {
-                        if(no_num<Cjson_Buf.size)
+                        if(no_num<Cjson_Buf.size){
                             no_num++;
-                        else
-                        {
-                            break;;
+                        }else{
+                            break;
                         }
-                    }
-                                     
+                    }                                     
                     for(num=no_num;num<Cjson_Buf.size;num++)		//删除对应工作组数据内容
                     {  
                         memset(&Cjson_Buf.Cjson_Buffer_Data[num],0,sizeof(Cjson_Buf.Cjson_Buffer_Data[num]));                 
@@ -286,7 +281,12 @@ uint8_t ParseStr(const char *JSON,TPYE CJSON_TASK_TPYE)
                     }
                     if(Cjson_Buf.size>0 && no_num<Cjson_Buf.size)       //任务组计数减一
                         Cjson_Buf.size--; 
+
                     W25QXX_Write((u8*)&Cjson_Buf,CJSON_DATA_FLASH_BASE,CJSON_DATA_SIZE);
+                    if(work_time.which_working_time == no_num)
+                    {
+                         memset(&work_time,0,sizeof(work_time));//每次删除操作后都要复位重新判断
+                    }
                    // memset(&work_time,0,sizeof(work_time));//每次删除操作后都要复位重新判断
                     printf("序号:%d \r\n", no_num); 
                 }
@@ -295,8 +295,8 @@ uint8_t ParseStr(const char *JSON,TPYE CJSON_TASK_TPYE)
                 str_arder = cJSON_GetObjectItem(str_json, "arder"); //获取task键对应的值的信息
             if(strstr(str_arder->valuestring,SET_RTC_TIME)!=0)		//设置RTC时间
            {
-                RTC_TimeTypeDef sTime = {0};
-                RTC_DateTypeDef sDate = {0};
+                //RTC_TimeTypeDef sTime = {0};
+                //RTC_DateTypeDef sDate = {0};
                 int  year,month,date,hour,min,sec,week;
                 cJSON *str_date,*str_time,*str_week;
                 char *data_date,*data_time;		 		
@@ -308,17 +308,20 @@ uint8_t ParseStr(const char *JSON,TPYE CJSON_TASK_TPYE)
                 week = str_week->valueint;
                 sscanf(data_date, "%x-%x-%x", &year, &month, &date);
                 sscanf(data_time, "%x:%x:%x", &hour, &min, &sec);
-
-                sTime.Hours=hour;
-                sTime.Minutes=min;
-                sTime.Seconds=sec;
-                sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
-                sTime.StoreOperation = RTC_STOREOPERATION_RESET;
+                RTC_TimeTypeDef sTime ={
+                    .Hours=hour,
+                    .Minutes=min,
+                    .Seconds=sec,
+                    .DayLightSaving = RTC_DAYLIGHTSAVING_NONE,
+                    .StoreOperation = RTC_STOREOPERATION_RESET
+                };
+                RTC_DateTypeDef sDate = {
+                    .WeekDay = week,
+                    .Year=year,  
+                    .Month=month,
+                    .Date=date   
+                };
                 HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD); //设置时间	
-                sDate.WeekDay = week;
-                sDate.Year=year;
-                sDate.Month=month;
-                sDate.Date=date;
                 HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD);//设置时间	
                 //HAL_UART_Transmit(&huart3,(u8*)"ok \r\n", strlen("ok \r\n"), 100);    // 发送                
             }
@@ -340,12 +343,14 @@ uint8_t ParseStr(const char *JSON,TPYE CJSON_TASK_TPYE)
                     if(Cjson_Buf.size>0)
                         Cjson_Buf.size--; 
                     W25QXX_Write((u8*)&Cjson_Buf,CJSON_DATA_FLASH_BASE,CJSON_DATA_SIZE);
+                    if(work_time.which_working_time == str_serial->valueint)
+                    {
+                         memset(&work_time,0,sizeof(work_time));//每次删除操作后都要复位重新判断
+                    }
              //     memset(&work_time,0,sizeof(work_time));//每次删除操作后都要复位重新判断
            }
             else
             {
-                RTC_TimeTypeDef sTime = {0};
-                RTC_DateTypeDef sDate = {0};
                 int  year,month,date,hour,min,sec,week;
                 cJSON *str_date,*str_week;
                 char *data_date,*data_week;		
@@ -355,17 +360,21 @@ uint8_t ParseStr(const char *JSON,TPYE CJSON_TASK_TPYE)
                 data_week = str_week->valuestring;
                 sscanf(data_date, "%x-%x-%x %x:%x:%x", &year, &month, &date,&hour, &min, &sec);
                 sscanf(data_week, "%d", &week);
-                sTime.Hours=hour;
-                sTime.Minutes=min;
-                sTime.Seconds=sec;
-                sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
-                sTime.StoreOperation = RTC_STOREOPERATION_RESET;
+                RTC_TimeTypeDef sTime ={
+                    .Hours=hour,
+                    .Minutes=min,
+                    .Seconds=sec,
+                    .DayLightSaving = RTC_DAYLIGHTSAVING_NONE,
+                    .StoreOperation = RTC_STOREOPERATION_RESET
+                };
+                RTC_DateTypeDef sDate = {
+                    .WeekDay = week,
+                    .Year=year,  
+                    .Month=month,
+                    .Date=date   
+                };
                 HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD); //设置时间	
-                sDate.WeekDay = week;               
-                sDate.Year=(u8)year;
-                sDate.Month=month;
-                sDate.Date=date;
-                HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD);//设置时间	
+                HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD);//设置时间
                // HAL_UART_Transmit(&huart3,(u8*)"ok \r\n", strlen("ok \r\n"), 100);    // 发送                
   
             }
