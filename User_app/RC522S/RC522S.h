@@ -215,6 +215,9 @@ typedef struct{
     u8 Pcd_Read_Flag;       //0:没有读 1：读取正确 2：读取错误
     u8 Pcd_Write_Flag;      //0:没有写  1：准备写  2：写完成 3:上报完成
     u8 Pcd_Legal_Flag;      //药水合法标志位  1：合法 2：不合法
+    u8 Pcd_FirstTime_Read_Flag;   //是否第一次读卡  1：不是 ；2：不是
+    u8 Pcd_Difference_Value;      //第一次读卡与称重之间的差值
+    u8 Pcd_Weight_Comparison_Flag;     //重量比较。1：读卡值比称重值大，后续称重需要加回来这个差值；2：称重值比读卡值大，后续称重需要减回去这个差值
     u16 Pcd_Read_Card_Werght; //读出来的重量
     u32 Pcd_Card_ID;        //卡的ID
 }Pcd_Massage;

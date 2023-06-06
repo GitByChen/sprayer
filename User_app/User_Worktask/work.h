@@ -24,7 +24,10 @@ typedef struct
 	u8 working_flag;	//是否正在工作	0:没有工作；1：准备工作；2：正在工作；3：工作完成
 	u8 working_time;	//工作时间计数
 	u8 which_working_time;  //记录是哪个工作组在工作
+	u8 Taday_Task_Flag;		//今日是否有任务
+	u8 Next_which_working_time;//记录下一次工作是那个工作组
 	u8 working_once;		//单次工作完成标志位 0：未完成。1：已完成
+	u8 now_to_cheak;		//用于标记是否初始放上药瓶，立刻检查一次任务
 	u16 working_interval_time;	//工作间隔时间计数
 }_work_time;
 extern _work_time work_time; 

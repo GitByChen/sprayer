@@ -111,7 +111,7 @@
      * and can't be drawn in chunks. */
 
     /*The target buffer size for simple layer chunks.*/
-    #define LV_DRAW_SW_LAYER_SIMPLE_BUF_SIZE          (16 * 1024)   /*[bytes]*/
+    #define LV_DRAW_SW_LAYER_SIMPLE_BUF_SIZE          (12 * 1024)   /*[bytes]*/
 
     /*Used if `LV_DRAW_SW_LAYER_SIMPLE_BUF_SIZE` couldn't be allocated.*/
     #define LV_DRAW_SW_LAYER_SIMPLE_FALLBACK_BUF_SIZE (3 * 1024)    /*[bytes]*/
@@ -498,7 +498,7 @@
 
 #define LV_USE_IMG        1   /*Requires: lv_label*/
 
-#define LV_USE_IMGBTN     1
+#define LV_USE_IMGBTN     0
 
 #define LV_USE_KEYBOARD   0
 
@@ -534,7 +534,7 @@
 
 #define LV_USE_SPINNER    0
 
-#define LV_USE_SWITCH     1
+#define LV_USE_SWITCH     0
 
 #define LV_USE_TEXTAREA   0   /*Requires: lv_label*/
 #if LV_USE_TEXTAREA != 0
@@ -740,7 +740,7 @@
 *==================*/
 
 /*Enable the examples to be built with the library*/
-#define LV_BUILD_EXAMPLES 1
+#define LV_BUILD_EXAMPLES 0
 
 /*===================
  * DEMO USAGE

@@ -113,6 +113,7 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
   HAL_GPIO_Init(SPI3_NSS_GPIO_Port, &GPIO_InitStruct);
 
+ HAL_GPIO_WritePin(GPIOB, LCD_BL_Pin, GPIO_PIN_RESET);
 }
 
 /* USER CODE BEGIN 2 */
@@ -129,11 +130,11 @@ void Open_Backlight(u8 val)
 {
 	if(val==1)
 	{
-		  HAL_GPIO_WritePin(GPIOE, LCD_BL_Pin, GPIO_PIN_SET);
+		  HAL_GPIO_WritePin(GPIOB, LCD_BL_Pin, GPIO_PIN_SET);
 	}
 	else
 	{
-		  HAL_GPIO_WritePin(GPIOE, LCD_BL_Pin, GPIO_PIN_RESET);
+		  HAL_GPIO_WritePin(GPIOB, LCD_BL_Pin, GPIO_PIN_RESET);
 
 	}
 }

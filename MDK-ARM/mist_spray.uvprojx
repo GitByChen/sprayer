@@ -826,29 +826,9 @@
               <FilePath>..\GUI\lvgl_app\ui_font_confont16.c</FilePath>
             </File>
             <File>
-              <FileName>ui_font_Font16.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\GUI\lvgl_app\ui_font_Font16.c</FilePath>
-            </File>
-            <File>
               <FileName>ui_font_Font26.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\GUI\lvgl_app\ui_font_Font26.c</FilePath>
-            </File>
-            <File>
-              <FileName>ui_img_background_png.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\GUI\lvgl_app\ui_img_background_png.c</FilePath>
-            </File>
-            <File>
-              <FileName>ui_img_buttle1_png.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\GUI\lvgl_app\ui_img_buttle1_png.c</FilePath>
-            </File>
-            <File>
-              <FileName>ui_img_buttle2_png.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\GUI\lvgl_app\ui_img_buttle2_png.c</FilePath>
             </File>
             <File>
               <FileName>lv_qrcode.c</FileName>
@@ -905,6 +885,11 @@
                   </Cads>
                 </FileArmAds>
               </FileOption>
+            </File>
+            <File>
+              <FileName>ui_font_Font14.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\GUI\lvgl_app\ui_font_Font14.c</FilePath>
             </File>
           </Files>
         </Group>

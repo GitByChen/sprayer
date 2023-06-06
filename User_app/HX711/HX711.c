@@ -182,6 +182,14 @@ void Write_Weight_To_Card(void)
 {
 	u8  sendbuf[2];		//将重量分成两个字节写进卡内
 	unsigned char snr=1;
+	if(Pcd_Massage_Flag.Pcd_Weight_Comparison_Flag==1)		//判断是需要加还是减
+	{
+		HX711_Massage.Write_To_Card_Weight+=Pcd_Massage_Flag.Pcd_Difference_Value;
+	}
+	else if(Pcd_Massage_Flag.Pcd_Weight_Comparison_Flag==2)
+	{
+		HX711_Massage.Write_To_Card_Weight-=Pcd_Massage_Flag.Pcd_Difference_Value;
+	}
 	sendbuf[0]= HX711_Massage.Write_To_Card_Weight >>8;
 	sendbuf[1]=(u8)HX711_Massage.Write_To_Card_Weight;
 	printf("重量值是：%d\r\n",HX711_Massage.Write_To_Card_Weight);

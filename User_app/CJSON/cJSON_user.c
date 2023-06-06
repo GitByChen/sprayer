@@ -30,7 +30,7 @@ void Uart_task(void)
 		{
             u8 buffer[100]={0};
             u8 work_val=0,i;
-//			printf("%s\r\n",UART3_RX_Buffer);		
+			printf("%s\r\n",UART3_RX_Buffer);		
 			strcpy((char*)buffer,(char *)UART3_RX_Buffer);
 			UART3_RX_STA = 0;
 			memset(UART3_RX_Buffer,0,sizeof(UART3_RX_Buffer));				//清除接收
@@ -273,30 +273,28 @@ uint8_t ParseStr(const char *JSON,TPYE CJSON_TASK_TPYE)
                         }else{
                             break;
                         }
-                    }                                     
-                    for(num=no_num;num<Cjson_Buf.size;num++)		//删除对应工作组数据内容
+                    }  
+                    for(num=no_num-1;num<Cjson_Buf.size;num++)		//删除对应工作组数据内容
                     {  
                         memset(&Cjson_Buf.Cjson_Buffer_Data[num],0,sizeof(Cjson_Buf.Cjson_Buffer_Data[num]));                 
                         Cjson_Buf.Cjson_Buffer_Data[num]= Cjson_Buf.Cjson_Buffer_Data[num+1];
                     }
-                    if(Cjson_Buf.size>0 && no_num<Cjson_Buf.size)       //任务组计数减一
+                    if(Cjson_Buf.size>0 && (no_num-1)<Cjson_Buf.size)       //任务组计数减一
                         Cjson_Buf.size--; 
 
                     W25QXX_Write((u8*)&Cjson_Buf,CJSON_DATA_FLASH_BASE,CJSON_DATA_SIZE);
-                    if(work_time.which_working_time == no_num)
+                    if(work_time.which_working_time == (no_num-1))
                     {
                          memset(&work_time,0,sizeof(work_time));//每次删除操作后都要复位重新判断
                     }
                    // memset(&work_time,0,sizeof(work_time));//每次删除操作后都要复位重新判断
-                    printf("序号:%d \r\n", no_num); 
+                    printf("序号:%d \r\n", (no_num-1)); 
                 }
         break;
         case createRTCTask:
                 str_arder = cJSON_GetObjectItem(str_json, "arder"); //获取task键对应的值的信息
             if(strstr(str_arder->valuestring,SET_RTC_TIME)!=0)		//设置RTC时间
            {
-                //RTC_TimeTypeDef sTime = {0};
-                //RTC_DateTypeDef sDate = {0};
                 int  year,month,date,hour,min,sec,week;
                 cJSON *str_date,*str_time,*str_week;
                 char *data_date,*data_time;		 		

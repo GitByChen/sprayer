@@ -23,24 +23,31 @@ extern lv_obj_t * ui_LableTime;
 extern lv_obj_t * ui_LableData;
 extern lv_obj_t * ui_LableWeek;
 extern lv_obj_t * ui_firstmodule1;
-extern lv_obj_t * ui_loading;
-extern lv_obj_t * ui_runningstatic;
-extern lv_obj_t * ui_runningswitch;
+extern lv_obj_t * ui_loadingLogo;
+extern lv_obj_t * ui_Task;
+extern lv_obj_t * ui_IntervalTime;
+extern lv_obj_t * ui_TaskTime;
+
 extern lv_obj_t * ui_secondmodule;
-extern lv_obj_t * ui_nextrunning1;
-extern lv_obj_t * ui_NextRunningBar;
-extern lv_obj_t * ui_LableMistSpray;
+extern lv_obj_t * ui_NextRunningTime;
+extern lv_obj_t * ui_nextrunning;
+
 extern lv_obj_t * ui_ThirdModule;
 extern lv_obj_t * ui_PercentVal;
 extern lv_obj_t * ui_Percent;
-extern lv_obj_t * ui_Slider2;
+extern lv_obj_t * ui_Slider1;
 extern lv_obj_t * ui_ThirdLabel;
 extern lv_obj_t * ui_Percent1;
+extern lv_obj_t * ui_FourthModule;
+extern lv_obj_t * ui_duration;
+extern lv_obj_t * ui_DurationTime;
+extern lv_obj_t * ui_Panel2;
+extern lv_obj_t * ui____initial_actions0;
 
+extern lv_obj_t * ui_Screen2;
 
-void nextrunning_val(int val);
-void DisplayWifi(int val);
-void DisplaySwitch(int val);
+void Change_Task_Disp(void);
+void NextRunning_Disp(void);
 
 #define USER_WIFI1            "\xEE\x9B\xA7" /*59111, 0xE6E7*/
 #define USER_WIFI2            "\xEE\x9B\xAB" /*59115, 0xE6EB*/

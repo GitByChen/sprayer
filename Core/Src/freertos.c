@@ -152,7 +152,7 @@ void MX_FREERTOS_Init(void) {
 	  osThreadDef( BC260YTask, BC260Y_task, osPriorityHigh, 0, 1024);
    BC260YTaskHandle = osThreadCreate(osThread( BC260YTask), NULL);
 	 
-	 osThreadDef( GUITask, GUI_task, osPriorityAboveNormal, 0, 4*1024);
+	 osThreadDef( GUITask, GUI_task, osPriorityAboveNormal, 0, 3*1024);
    GUITaskHandle = osThreadCreate(osThread( GUITask), NULL);
 
   /* USER CODE END RTOS_THREADS */

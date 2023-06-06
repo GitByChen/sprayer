@@ -372,6 +372,21 @@ void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
 
 void Motor_Working(u8 gears)
 {
-	 __HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,gears*333);//设置TIM2时钟通道2pwm输出的pulse值为500
+  if(gears==0)
+  {
+        __HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,0);//设置TIM2时钟通道2pwm输出的pulse值为500
+  }
+	else if(gears==1)
+   {
+      __HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,500);//设置TIM2时钟通道2pwm输出的pulse值为500
+   }
+   else if(gears==2)
+   {
+      __HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,700);//设置TIM2时钟通道2pwm输出的pulse值为500
+   }
+   else if(gears==3)
+   {
+      __HAL_TIM_SetCompare(&htim2,TIM_CHANNEL_2,1000);//设置TIM2时钟通道2pwm输出的pulse值为500
+   }
 }
 /* USER CODE END 1 */

@@ -365,7 +365,7 @@ void Flash_Data_Init(void)
 									(u32)HX711_Massage.Base_value_Buf[1]<<16|
 									(u32)HX711_Massage.Base_value_Buf[2]<< 8|
 									(u32)HX711_Massage.Base_value_Buf[3]<< 0;	
-	if(HX711_Massage.Base_Weight_Value<=1000000 || HX711_Massage.Base_Weight_Value==0xffffffff)
+	if(HX711_Massage.Base_Weight_Value<=8000000 || HX711_Massage.Base_Weight_Value==0xffffffff)
 	{
 		HX711_Massage.Base_Weight_Value=0;
 	}

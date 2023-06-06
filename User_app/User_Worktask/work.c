@@ -9,12 +9,12 @@
 #include "RC522S.h"
 #include "time.h"
 #include "ui.h"
-
+#include "BC260Y.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
-
+#include "ui_display.h"
 //互斥信号量句柄
 extern SemaphoreHandle_t MutexSemaphore;	//互斥信号量
 
@@ -109,19 +109,28 @@ u8 scan_work_day(u8 Num)
 void work_task(void const * argument )
 {
 	static u8 minute_interval_Cheak=0,minute_Cheak=0; //判断在时间范围内，是否已经判断过了
+	u16 Next_Work_Time_Val=0xffff,Next_Work_Time_Val_Old=0xffff;			//存放距离下一次工作时间的时间
 	for( ; ; ) 
 	{	
 //		xSemaphoreTake(MutexSemaphore,portMAX_DELAY);		//获取互斥信号量
 //	printf("%d-%d-%d %d:%d:%d\n",GetData.Year,GetData.Month,GetData.Date,GetTime.Hours,GetTime.Minutes,GetTime.Seconds);//输出闹铃时间
 		if(Pcd_Massage_Flag.Have_A_Card==PCD_OK)
 		{
-			if((work_time.work_time_flag==0 && GetTime.Seconds<=40 && minute_Cheak==0) )	//每天0点检查是否有工作组工作
-			{
+			if((work_time.work_time_flag==0 && GetTime.Seconds<=40 && minute_Cheak==0) || work_time.now_to_cheak==1)	//每天0点检查是否有工作组工作
+			{		
+				if(work_time.now_to_cheak==1)
+				{
+					Next_Work_Time_Val=0xffff;
+					Next_Work_Time_Val_Old=0xffff;
+					work_time.Taday_Task_Flag=0;					
+					work_time.now_to_cheak=0;				
+				}	
 				minute_Cheak=1;		//每分钟检查一次完成
 				work_time.which_working_time=0;//对记录值进行清零
 				while(work_time.which_working_time<Cjson_Buf.size && work_time.work_time_flag==0)
-				{	                       
-					if(scan_work_day(work_time.which_working_time)==1)
+				{	  
+					 
+					if(scan_work_day(work_time.which_working_time)==1)					
 					{	
 						if((GetTime.Hours*60 +GetTime.Minutes)==
 							(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_start_hour*60 +
@@ -130,9 +139,11 @@ void work_task(void const * argument )
 						{
 								if(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].status==1 && work_time.working_once==0)
 								{
-									work_time.work_time_flag=1;
-									ui_event_cb=run_static;  //触发一次事件
+									work_time.work_time_flag=1;									
 									work_time.working_flag=0;
+									Next_Work_Time_Val=0xffff;
+									Next_Work_Time_Val_Old=0xffff;
+									work_time.Taday_Task_Flag=0;							
 									printf("在第%d个工作组工作\r\n",work_time.which_working_time);
 									break;//符合要求直接退出while
 								}	
@@ -148,22 +159,45 @@ void work_task(void const * argument )
 							{
 								work_time.work_time_flag=1;
 								work_time.working_flag=0;
-								ui_event_cb=run_static;  //触发一次事件
+								Next_Work_Time_Val=0xffff;
+								Next_Work_Time_Val_Old=0xffff;
+								work_time.Taday_Task_Flag=0;
 								printf("在第%d个工作组工作\r\n",work_time.which_working_time);
 								break;//符合要求直接退出while
 							}
 														
 						}
+						else{
+							if((GetTime.Hours*60 +GetTime.Minutes)<(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_start_hour*60 +
+							 Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_start_min))
+							 {
+								Next_Work_Time_Val=(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_start_hour*60 +
+								Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_start_min)-(GetTime.Hours*60 +GetTime.Minutes);
+
+								if(Next_Work_Time_Val<Next_Work_Time_Val_Old)
+								{
+									Next_Work_Time_Val_Old=Next_Work_Time_Val;
+									work_time.Next_which_working_time=work_time.which_working_time;		//记录最接近的一个工作组
+									work_time.Taday_Task_Flag=1;
+								}
+							 }
+							
+						}
 					}
+					else{
+						work_time.Taday_Task_Flag=0;
+					}
+
 						work_time.work_time_flag=0;
 						work_time.working_once=0;
 						work_time.which_working_time++;	//记录哪个工作组在工作									
 				}
 				if(work_time.work_time_flag!=1)
 				{
+					//ui_event_cb=run_static;  //触发一次事件
 					work_time.which_working_time=0xff;	//没有工作组符合
 				}
-
+				ui_event_cb=run_static;  //触发一次事件
 			}
 			else if(GetTime.Seconds>=40 && minute_Cheak==1)
 			{
@@ -201,9 +235,9 @@ void work_task(void const * argument )
 					else
 					{
 						if(work_time.working_flag==0||work_time.working_flag==3)	//过了时间也要等本次工作完成后再复位
-						{
-							ui_event_cb=run_static; //触发一次工作状态事件	
+						{								
 							memset(&work_time,0,sizeof(work_time));//如果时间过了 ，复位重新判断
+							ui_event_cb=run_static; //触发一次工作状态事件
 						}	
 					}
 
@@ -213,12 +247,10 @@ void work_task(void const * argument )
 						{
 							work_time.working_flag=0;
 							work_time.working_interval_time=0;
-							ui_event_cb=NextRunning_Reflash;//触发更新进度条事件
 						}
 						else
 						{
 							work_time.working_interval_time++;
-							ui_event_cb=NextRunning_Reflash;//触发更新进度条事件
 						}
 						
 					}
@@ -239,7 +271,7 @@ void work_task(void const * argument )
 			else if(work_time.working_flag==1 && Pcd_Massage_Flag.Pcd_Write_Flag==3) //要上报重量完成再工作
 			{
 					work_time.working_flag=2;
-					work_time.working_interval_time=0;			//工作开始，同时开始计数间隔时间
+					work_time.working_interval_time=1;			//工作开始，同时开始计数间隔时间
 					work_time.working_time=0;					//工作时间计数清零，开始工作
 					Motor_Working(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].gears);
 					HAL_UART_Transmit(&huart3,(u8*)"工作!", strlen("工作!"), 100);    //
@@ -262,18 +294,25 @@ void work_task(void const * argument )
 					{
 						work_time.working_once=0;	
 					}
+					ui_event_cb=NextRunning_Reflash;//触发更新下一次工作时间显示
 					HAL_UART_Transmit(&huart3,(u8*)"结束工作!", strlen("结束工作!"), 100);    
 				}
 				else
 				{
 					work_time.working_time++;
 				}
+			}
+			else if(work_time.work_time_flag==1 && work_time.working_flag==1 && Pcd_Massage_Flag.Pcd_Write_Flag!=3)
+			{
+				NextRunning_Disp();
+				//ui_event_cb=NextRunning_Reflash;//触发更新下一次工作时间显示
 			}			
 		}
 		else 
 		{
 			memset(&work_time,0,sizeof(work_time));//如果没有卡 ，复位重新判断
-
+			ui_event_cb=run_static;  //触发一次事件
+			Motor_Working(0);		//
 		}	
 //		xSemaphoreGive(MutexSemaphore);					//释放信号量
 		vTaskDelay(1000);

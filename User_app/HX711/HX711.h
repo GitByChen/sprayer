@@ -34,7 +34,7 @@ extern HX711 HX711_Massage;
 #else
      #define HX711_K_VALUE    1000*1.030 //转换系数 值大了降低系数 反之增加  //5KG的系数为1000*1.000 //1KG 系数1000*1.274  2KG 系数1000*1.100     
 #endif
-#define Weight_val_max          1150     //液体+瓶子重量
+#define Weight_val_max          1000     //液体
 #define HX711_Weight_Err_val   30       //结构导致称重误差，大约为3%
 void Get_WeightBase(void);
 float Get_Weight(void);

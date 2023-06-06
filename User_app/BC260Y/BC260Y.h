@@ -38,7 +38,7 @@ extern BC260_MASSAGE BC260_Massage;
 #define AT_MQTT_PUB_WEIGHT_ERR_REPORT      "AT+QMTPUB=0,0,0,0,\"ljrh/nebulizer/%s/weightIncrease\"" //上报重量不匹配的广播主题
 #define AT_MQTT_PUB_WEIGHT_REPORT            "AT+QMTPUB=0,0,0,0,\"ljrh/nebulizer/%s/liquidWeight\"" //上报重量广播
 #define AT_MQTT_PUB_TIMING_WAKEUP          "AT+QMTPUB=0,0,0,0,\"%s/BC260Y\"" //我叫什么 在广播
-
+#define AT_MATT_PUB_NEXTACTION            "AT+QMTPUB=0,0,0,0,\"ljrh/nebulizer/%s/nextAction\""     //上报下一次工作时间
 #define AT_MQTT_QMTPUB11          ">" // 广播正常字符
 #define TimerTask                   "AT+QMTSUB=0,1,\"ljrh/nebulizer/%s/task\",1"   //工作时间任务
 #define TimerClearTask              "AT+QMTSUB=0,1,\"ljrh/nebulizer/%s/clearTask\",1"   //工作时间清零任务
@@ -63,6 +63,7 @@ extern BC260_MASSAGE BC260_Massage;
 #define JSON_BC260Y_MASSAGE     "{\"sn\":\"%s\",\"imei\":\"%s\",\"bind\":%d,\"status\":%d,\"timestamp\":\"%d000\"}"     //定时上报消息
 #define HX711_Weight_Report      "{\"sn\":\"%s\",\"weight\":%d,\"timestamp\":\"%d000\"}"    //工作完后重量上报
 #define HX711_Weight_Error_Report "{\"sn\":\"%s\",\"timestamp\":\"%d\"}"
+#define Next_Action_Massage      "{\"sn\":\"%s\",\"timestamp\":\"%d000\",\"start_time\": \"%02d:%02d\",\"week\":%d}"     //上报下一次工作时间
 #define AT_Order_RESP           "OK"            //指令返回
 #define AT_Order_ERROE           "ERROR"        //指令发送失败
 #define AT_RESP_CIMI            "460"           //查询卡号返回
@@ -86,6 +87,7 @@ extern BC260_MASSAGE BC260_Massage;
 #define EXIT_SALEEP         0
 #define AT_CGATT_OPEN           "=1"
 
+
 extern u8 g_mqtt_init_ok;          //判断是否MQTT初始化完成
 
 void Mqtt_BC260Y_Task_Init(void);
@@ -102,7 +104,7 @@ void Send_Err_reconnect(void);//发送错误，进行重连
 void mqtt_Sub(void);       //MQTT总订阅
 
 u8 MQTT_Subscribe(char *QMTSUB);  //订阅
-u8 MQTT_Publish(const char *str, char *sub);//广播
+u8 MQTT_Publish(const char *str,const char *sub);//广播
 void TimerSub(void); //定时广播
 
 #endif

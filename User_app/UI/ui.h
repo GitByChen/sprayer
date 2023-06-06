@@ -28,12 +28,13 @@ enum UI_EVENT   //UI 事件
 extern enum UI_EVENT ui_event_cb;
 
 /* Exported functions --------------------------------------------------------*/
-void qc_andisplay(uint8_t val);
 void qc_event_cb(lv_event_t * e);
 void LableWifi_event_cb(lv_event_t * e);
-void runningswitch_event_cb(lv_event_t * e);
-void NextRunningBar_event_cb(lv_event_t * e);
 void surplus_change_cb(lv_event_t * e);
+
+void ui_event_Screen1(lv_event_t * e);
+void ui_event_Screen2(lv_event_t * e);
+
 #ifdef __cplusplus
 }
 #endif
