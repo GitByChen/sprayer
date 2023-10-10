@@ -164,7 +164,7 @@ float Get_Weight(void)
 {
 	HX711_Massage.Weight=0;
 	HX711_Massage.HX711_Weight_Value = HX711_Value_Dispose();
-	printf("base=%d,real val=%d\r\n",HX711_Massage.Base_Weight_Value,HX711_Massage.HX711_Weight_Value);
+	//printf("base=%d,real val=%d\r\n",HX711_Massage.Base_Weight_Value,HX711_Massage.HX711_Weight_Value);
 	if(HX711_Massage.HX711_Weight_Value > HX711_Massage.Base_Weight_Value)			
 	{
 		HX711_Massage.Weight = (HX711_Massage.HX711_Weight_Value-HX711_Massage.Base_Weight_Value)/HX711_Massage.K;
@@ -180,6 +180,7 @@ float Get_Weight(void)
 */
 void Write_Weight_To_Card(void)
 {
+#if 0
 	u8  sendbuf[2];		//将重量分成两个字节写进卡内
 	unsigned char snr=1;
 	if(Pcd_Massage_Flag.Pcd_Weight_Comparison_Flag==1)		//判断是需要加还是减
@@ -195,14 +196,25 @@ void Write_Weight_To_Card(void)
 	printf("重量值是：%d\r\n",HX711_Massage.Write_To_Card_Weight);
 	PCD_WriteBlock((snr*4+0), (u8 *)sendbuf);					//写卡操作
 	Pcd_Massage_Flag.Pcd_Write_Flag=2;					//写卡标志位置1，在工作时清零
-
-/*	u8  *sendbuf;		//将重量分成两个字节写进卡内
+#else 
+	u8  *sendbuf;		//将重量分成两个字节写进卡内
 	unsigned char snr=1;
+	if( Pcd_Massage_Flag.Card_Modal==0){
+		if(Pcd_Massage_Flag.Pcd_Weight_Comparison_Flag==1)		//判断是需要加还是减
+		{
+			HX711_Massage.Write_To_Card_Weight+=Pcd_Massage_Flag.Pcd_Difference_Value;
+		}
+		else if(Pcd_Massage_Flag.Pcd_Weight_Comparison_Flag==2)
+		{
+			HX711_Massage.Write_To_Card_Weight-=Pcd_Massage_Flag.Pcd_Difference_Value;
+		}
+	}
 	sendbuf=Weight_encryption(HX711_Massage.Write_To_Card_Weight);
 	printf("重量值是：%d\r\n",HX711_Massage.Write_To_Card_Weight);
 	PCD_WriteBlock((snr*4+0), sendbuf);					//写卡操作
 	Pcd_Massage_Flag.Pcd_Write_Flag=2;					//写卡标志位置1，在工作时清零
-	*/
+
+#endif
 	PCD_Halt();	
 }
 /*

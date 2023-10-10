@@ -39,6 +39,7 @@ extern u8 const mon_table[12];	//月份日期数据表
 int32_t time_to_timestamp(void);
 char * get_time_ms(void);
 u8 scan_work_day(u8 Num);
+u8 RTC_Get_Week(u16 year,u8 month,u8 day);
 
 #endif
 

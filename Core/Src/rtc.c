@@ -22,10 +22,12 @@
 
 /* USER CODE BEGIN 0 */
 #include "time.h"
+
 /* USER CODE END 0 */
 
 RTC_HandleTypeDef hrtc;
-
+  RTC_TimeTypeDef sTime ={0};
+  RTC_DateTypeDef sDate ={0};
 /* RTC init function */
 void MX_RTC_Init(void)
 {
@@ -34,60 +36,63 @@ void MX_RTC_Init(void)
 
   /* USER CODE END RTC_Init 0 */
 
-  RTC_TimeTypeDef sTime = {0};
-  RTC_DateTypeDef sDate = {0};
+
 
   /* USER CODE BEGIN RTC_Init 1 */
+    __HAL_RCC_PWR_CLK_ENABLE();
+	  __HAL_RCC_RTC_ENABLE();
 
   /* USER CODE END RTC_Init 1 */
 
   /** Initialize RTC Only
   */
   hrtc.Instance = RTC;
-  hrtc.Init.HourFormat = RTC_HOURFORMAT_24;
-  hrtc.Init.AsynchPrediv = 127;
-  hrtc.Init.SynchPrediv = 255;
-  hrtc.Init.OutPut = RTC_OUTPUT_DISABLE;
-  hrtc.Init.OutPutRemap = RTC_OUTPUT_REMAP_NONE;
-  hrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
-  hrtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
-  if (HAL_RTC_Init(&hrtc) != HAL_OK)
+  if(HAL_RTCEx_BKUPRead(&hrtc,RTC_BKP_DR0)!=0X12)//ÊÇ·ñµÚÒ»´ÎÅäÖÃ
   {
-    Error_Handler();
-  }
+    hrtc.Init.HourFormat = RTC_HOURFORMAT_24;
+    hrtc.Init.AsynchPrediv = 127;
+    hrtc.Init.SynchPrediv = 255;
+    hrtc.Init.OutPut = RTC_OUTPUT_DISABLE;
+    hrtc.Init.OutPutRemap = RTC_OUTPUT_REMAP_NONE;
+    hrtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
+    hrtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
+    if (HAL_RTC_Init(&hrtc) != HAL_OK)
+    {
+      Error_Handler();
+    }
 
-  /* USER CODE BEGIN Check_RTC_BKUP */
-	/*ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½Ð´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½*/
-  if(HAL_RTCEx_BKUPRead(&hrtc,RTC_BKP_DR1)==0x12)
+    /* USER CODE BEGIN Check_RTC_BKUP */
+    /*???????????§Õ??????*/
+    HAL_RTCEx_BKUPWrite(&hrtc,RTC_BKP_DR0,0x12);//±ê¼ÇÒÑ¾­³õÊ¼»¯¹ýÁË
+
+    /* USER CODE END Check_RTC_BKUP */
+
+    /** Initialize RTC and set the Time and Date
+    */
+    sTime.Hours = 0x8;
+    sTime.Minutes = 0x8;
+    sTime.Seconds = 0x0;
+    sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+    sTime.StoreOperation = RTC_STOREOPERATION_RESET;
+    if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
+    {
+      Error_Handler();
+    }
+    sDate.WeekDay = RTC_WEEKDAY_THURSDAY;
+    sDate.Month = RTC_MONTH_DECEMBER;
+    sDate.Date = 0x8;
+    sDate.Year = 0x22;
+
+    if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD) != HAL_OK)
+    {
+      Error_Handler();
+    }
+  }
+  else
   {
     return ;
   }
-  else HAL_RTCEx_BKUPWrite(&hrtc,RTC_BKP_DR1,0x12);//Ð´ï¿½ï¿½ï¿½Ö¾Î?,ï¿½ï¿½Ê¾RTCÊ±ï¿½ï¿½ï¿½ï¿½ï¿½ÃºÃ£ï¿½ï¿½ï¿½Ö¹ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
-
-  /* USER CODE END Check_RTC_BKUP */
-
-  /** Initialize RTC and set the Time and Date
-  */
-  sTime.Hours = 0x8;
-  sTime.Minutes = 0x8;
-  sTime.Seconds = 0x0;
-  sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
-  sTime.StoreOperation = RTC_STOREOPERATION_RESET;
-  if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  sDate.WeekDay = RTC_WEEKDAY_THURSDAY;
-  sDate.Month = RTC_MONTH_DECEMBER;
-  sDate.Date = 0x8;
-  sDate.Year = 0x22;
-
-  if (HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BCD) != HAL_OK)
-  {
-    Error_Handler();
-  }
   /* USER CODE BEGIN RTC_Init 2 */
-
   /* USER CODE END RTC_Init 2 */
 
 }

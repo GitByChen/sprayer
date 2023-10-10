@@ -43,8 +43,8 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-RTC_DateTypeDef GetData;    //鏃ユ湡
-RTC_TimeTypeDef GetTime;    //鏃堕棿
+RTC_DateTypeDef GetData;    
+RTC_TimeTypeDef GetTime;   
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -113,7 +113,7 @@ int main(void)
   MX_SPI1_Init();
   MX_SPI2_Init();
   MX_SPI3_Init();
-//  MX_IWDG_Init();
+  MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
 	MFRC_Init();				//RC260初始化
 	PCD_Reset();				//RC260复位
@@ -196,11 +196,12 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-u32 Send_Timeout=0; //定时发送计时
+u16 Send_Timeout=0; //定时发送计时
 u16 Send_timing_wakeup=0;
 u16 readCard_delay=0;
 u16 timer_500_ms=0;
 u16 RGB_timer=0;
+u16 GET_RTC_TIMEOUT=0;
 /* USER CODE END 4 */
 
 /**
@@ -222,6 +223,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   if (htim->Instance == TIM6) {		//1ms
 		timer_500_ms++;
     RGB_timer++;
+    GET_RTC_TIMEOUT++;
     if(execute_work_flag==1)
 			{
       execute_work_time++;
@@ -235,9 +237,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 				timer_500_ms=0;
 				Send_Timeout++;
 				Send_timing_wakeup++;
-				if(Send_Timeout>=1000)
-					Send_Timeout=0;
-				if(Send_timing_wakeup>=1000)
+				if(Send_Timeout>=1800)
+        {
+          Send_Timeout=0;
+        }
+				if(Send_timing_wakeup>=100)
 				{
 					Send_timing_wakeup=0;
 				}
@@ -246,8 +250,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 					readCard_delay++;
 				}
 
-			 HAL_RTC_GetTime(&hrtc, &GetTime, RTC_FORMAT_BIN);	//获取时间
-			 HAL_RTC_GetDate(&hrtc, &GetData, RTC_FORMAT_BIN);	//获取日期
 			}
   }
 	lv_tick_inc(1);

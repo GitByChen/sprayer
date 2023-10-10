@@ -12,6 +12,7 @@
         "main.h": "c",
         "hx711.h": "c",
         "lv_port_disp.h": "c",
-        "lv_qrcode.h": "c"
+        "lv_qrcode.h": "c",
+        "work.h": "c"
     }
 }

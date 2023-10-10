@@ -469,7 +469,7 @@ char PCD_Select(uint8_t *pSnr)
     {
         status = PCD_ERR;
     }
-	printf("card=%d\r\n",status);
+	//printf("card=%d\r\n",status);
     return status;
 }
 
@@ -508,7 +508,7 @@ char PCD_AuthState(uint8_t AuthMode, uint8_t BlockAddr, uint8_t *pKey, uint8_t *
     {
         status = PCD_ERR;
     }
-	printf("ms=%d\r\n",status);
+	//printf("ms=%d\r\n",status);
     return status;
 }
 
@@ -814,7 +814,7 @@ char WaitCardOff(void)
 void RC522Stask(void* pvParameters )
 {
     unsigned char pcd_addr;
-    u8 buf[2]={0,0};
+    u8 buf[4]={0,0,0,0};
     u8 Legal_status=0;  //用作当检测有卡时，限制只进行一次判断重量是否正确
     u8 disp_val=0;      //由于需要一直扫描是否有卡，变量用于限制扫描时触发刷新事件的次数 
     	
@@ -856,12 +856,12 @@ void RC522Stask(void* pvParameters )
                 pcd_addr=1;				
                 if(PCD_ReadBlock((pcd_addr*4+0), buf)==0) 
                 {
-                     Pcd_Massage_Flag.Pcd_Read_Flag=1;                      
-                      Pcd_Massage_Flag.Pcd_Read_Card_Werght=((u16)buf[0])<<8 | (u16)buf[1];                   
-                    //Pcd_Massage_Flag.Pcd_Read_Card_Werght=Weight_Decode(buf);     //简单加密
+                     Pcd_Massage_Flag.Pcd_Read_Flag=1;  
+                     // Pcd_Massage_Flag.Pcd_Read_Card_Werght=((u16)buf[0])<<8 | (u16)buf[1];                   
+                    Pcd_Massage_Flag.Pcd_Read_Card_Werght=Weight_Decode(buf);     //简单加/解密
                     if(Pcd_Massage_Flag.Pcd_Read_Card_Werght!=1)
                     {                      
-                        //Pcd_Massage_Flag.Pcd_Read_Card_Werght=((u16)buf[0])<<8 | (u16)buf[1];                   
+                        Pcd_Massage_Flag.Pcd_Read_Card_Werght=(u16)buf[1]<<8 | (u16)buf[0];                   
                         printf("读到的值是： %d\n",Pcd_Massage_Flag.Pcd_Read_Card_Werght);						
                     }
                     readCard_delay=0;                                  
@@ -910,11 +910,10 @@ void RC522Stask(void* pvParameters )
 
                         if(Pcd_Massage_Flag.Pcd_Legal_Flag==1)
                         {
-                            beep_on();
-                            vTaskDelay(300);	
-                            beep_off();
-                             memset(&work_time,0,sizeof(work_time));//每次重新放上后都要复位重新判断
-                             work_time.now_to_cheak=1;//检查任务标志位置1，需要立刻检查一次任务
+                            //beep_on();
+                            //vTaskDelay(300);	
+                            //beep_off();
+                            work_time.now_to_cheak=1;//检查任务标志位置1，需要立刻检查一次任务
                         }
                         else
                         {
@@ -938,26 +937,10 @@ void RC522Stask(void* pvParameters )
             }
             if(Pcd_Massage_Flag.Pcd_Read_Flag==1 && Pcd_Massage_Flag.Card_Modal==1)//用于手动写卡
             {
-                Get_Weight();
-                
-                 if(HX711_Massage.Write_To_Card_Weight>=Pcd_Massage_Flag.Pcd_Read_Card_Werght)       
-                {
-                    if((HX711_Massage.Write_To_Card_Weight-Pcd_Massage_Flag.Pcd_Read_Card_Werght)>50)
-                    {
-                        Write_Weight_To_Card();
-                        Pcd_Massage_Flag.Pcd_Read_Flag=0;
-                        Pcd_Massage_Flag.Card_Modal=0;
-                    }
-                }
-                else
-                {
-                    if((Pcd_Massage_Flag.Pcd_Read_Card_Werght-HX711_Massage.Write_To_Card_Weight)>100)
-                    {
-                        Write_Weight_To_Card();
-                        Pcd_Massage_Flag.Pcd_Read_Flag=0;
-                        Pcd_Massage_Flag.Card_Modal=0;
-                    }
-                }
+                Get_Weight();               
+                Write_Weight_To_Card();
+                Pcd_Massage_Flag.Pcd_Read_Flag=0;
+                Pcd_Massage_Flag.Card_Modal=0;
                       
             }
 

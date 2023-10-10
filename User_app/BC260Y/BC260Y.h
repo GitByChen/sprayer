@@ -32,12 +32,13 @@ extern BC260_MASSAGE BC260_Massage;
 #define AT_MQTT_QMTOPEN         "AT+QMTOPEN=0,\"120.24.149.179\",1883"   //接入服务器
 #define AT_MQTT_QMTCLOSE        "AT+QMTCLOSE=0"    //关闭服务器
 #define AT_MQTT_QMTDISC        "AT+QMTDISC=0"      //退出登录
+#define AT_MQTT_QRST             "AT+QRST=1"       //立即重启模块
 #define AT_MQTT_QMTCONN         "AT+QMTCONN=0,\"%s\",\"nebulizer\",\"ljrh1234\""           //登录服务器
 
 #define AT_MQTT_PUB_TIMING_REPORT          "AT+QMTPUB=0,0,0,0,\"ljrh/nebulizer/%s/deviceStatus\"" // 定时广播的主题
 #define AT_MQTT_PUB_WEIGHT_ERR_REPORT      "AT+QMTPUB=0,0,0,0,\"ljrh/nebulizer/%s/weightIncrease\"" //上报重量不匹配的广播主题
 #define AT_MQTT_PUB_WEIGHT_REPORT            "AT+QMTPUB=0,0,0,0,\"ljrh/nebulizer/%s/liquidWeight\"" //上报重量广播
-#define AT_MQTT_PUB_TIMING_WAKEUP          "AT+QMTPUB=0,0,0,0,\"%s/BC260Y\"" //我叫什么 在广播
+#define AT_MQTT_PUB_TIMING_WAKEUP          "AT+QMTPUB=0,0,0,0,\"B\"" //我叫什么 在广播
 #define AT_MATT_PUB_NEXTACTION            "AT+QMTPUB=0,0,0,0,\"ljrh/nebulizer/%s/nextAction\""     //上报下一次工作时间
 #define AT_MQTT_QMTPUB11          ">" // 广播正常字符
 #define TimerTask                   "AT+QMTSUB=0,1,\"ljrh/nebulizer/%s/task\",1"   //工作时间任务
@@ -63,7 +64,7 @@ extern BC260_MASSAGE BC260_Massage;
 #define JSON_BC260Y_MASSAGE     "{\"sn\":\"%s\",\"imei\":\"%s\",\"bind\":%d,\"status\":%d,\"timestamp\":\"%d000\"}"     //定时上报消息
 #define HX711_Weight_Report      "{\"sn\":\"%s\",\"weight\":%d,\"timestamp\":\"%d000\"}"    //工作完后重量上报
 #define HX711_Weight_Error_Report "{\"sn\":\"%s\",\"timestamp\":\"%d\"}"
-#define Next_Action_Massage      "{\"sn\":\"%s\",\"timestamp\":\"%d000\",\"start_time\": \"%02d:%02d\",\"week\":%d}"     //上报下一次工作时间
+#define Next_Action_Massage      "{\"sn\":\"%s\",\"timestamp\":\"%d000\",\"time\": \"%02d:%02d\",\"week\":%d}"     //上报下一次工作时间
 #define AT_Order_RESP           "OK"            //指令返回
 #define AT_Order_ERROE           "ERROR"        //指令发送失败
 #define AT_RESP_CIMI            "460"           //查询卡号返回
@@ -80,9 +81,10 @@ extern BC260_MASSAGE BC260_Massage;
 #define AT_MQTT_RESP_QMTUNS     "+QMTUNS: 0,1"    //   退阅成功
 
 #define AT_MQTT_RESP_MQTPUB1          ">" //我叫什么 在广播
-#define AT_MQTT_RESP_MQTPUB     "+QMTPUB: 0,0,0"    //发布成功
+#define AT_MQTT_RESP_MQTPUB     "+QMTPUB:"    //发布成功
 #define AT_MQTT_RESP_QMTSTAT     "+QMTSTAT:"
-#define AT_MQTT_RESP_QMTRECV     "+QMTRECV:"
+#define AT_MQTT_RESP_QMTRECV     "+QMTRECV:" //接收订阅
+#define AT_MATT_RESP_CCLK        "+CCLK:"    //查询时间返回
 #define FALL_SALEEP         1
 #define EXIT_SALEEP         0
 #define AT_CGATT_OPEN           "=1"
@@ -98,8 +100,11 @@ u8 MQTT_QMTOPEN(void);     //连接服务器
 u8 MQTT_QMTCLOSE(void);     //关闭连接服务器
 u8 MQTT_QMTCONN(void);     //登录服务器
 u8 MQTT_QMTCLOSE(void);    //退出服务器
+void MQTT_QRST(void);      //重启模块
 void Set_EchoMode(void);    //设置为不回显输入数据
 void Send_Err_reconnect(void);//发送错误，进行重连
+void MQTT_GET_CCLK(void);  //获取日期时间并更新
+void MATT_GET_CTZR(void);  //时区上报
 
 void mqtt_Sub(void);       //MQTT总订阅
 

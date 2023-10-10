@@ -29,7 +29,7 @@ extern "C" {
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-extern u32 Send_Timeout;
+extern u16 Send_Timeout;
 extern u16 Send_timing_wakeup;
 extern u16 readCard_delay;
 extern u16 RGB_timer;

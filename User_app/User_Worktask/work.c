@@ -65,7 +65,7 @@ printf("stm=%d,time_str=%s",now,time_str);
 return time_str;
 
 }
-/*											 
+										 
 u8 const table_week[12]={0,3,3,6,1,4,6,2,5,0,3,5}; //???????????	  
 
 //获得现在是星期几
@@ -87,7 +87,7 @@ u8 RTC_Get_Week(u16 year,u8 month,u8 day)
 	if (yearL%4==0&&month<3)temp2--;
 	return(temp2%7);
 }
-*/
+
 
 
 /*
@@ -109,6 +109,7 @@ u8 scan_work_day(u8 Num)
 void work_task(void const * argument )
 {
 	static u8 minute_interval_Cheak=0,minute_Cheak=0; //判断在时间范围内，是否已经判断过了
+	u8 old_hours=0;//用于每天0点清除一下存放距离下一次工作时间的值
 	u16 Next_Work_Time_Val=0xffff,Next_Work_Time_Val_Old=0xffff;			//存放距离下一次工作时间的时间
 	for( ; ; ) 
 	{	
@@ -116,15 +117,18 @@ void work_task(void const * argument )
 //	printf("%d-%d-%d %d:%d:%d\n",GetData.Year,GetData.Month,GetData.Date,GetTime.Hours,GetTime.Minutes,GetTime.Seconds);//输出闹铃时间
 		if(Pcd_Massage_Flag.Have_A_Card==PCD_OK)
 		{
+			
 			if((work_time.work_time_flag==0 && GetTime.Seconds<=40 && minute_Cheak==0) || work_time.now_to_cheak==1)	//每天0点检查是否有工作组工作
-			{		
-				if(work_time.now_to_cheak==1)
+			{	
+	
+				if(work_time.now_to_cheak==1 || old_hours>GetTime.Hours)	//每天过0点清除一下存放距离下一次工作时间的值
 				{
 					Next_Work_Time_Val=0xffff;
 					Next_Work_Time_Val_Old=0xffff;
 					work_time.Taday_Task_Flag=0;					
 					work_time.now_to_cheak=0;				
 				}	
+				old_hours=GetTime.Hours;	
 				minute_Cheak=1;		//每分钟检查一次完成
 				work_time.which_working_time=0;//对记录值进行清零
 				while(work_time.which_working_time<Cjson_Buf.size && work_time.work_time_flag==0)
@@ -171,9 +175,9 @@ void work_task(void const * argument )
 							if((GetTime.Hours*60 +GetTime.Minutes)<(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_start_hour*60 +
 							 Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_start_min))
 							 {
+								
 								Next_Work_Time_Val=(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_start_hour*60 +
 								Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].time_start_min)-(GetTime.Hours*60 +GetTime.Minutes);
-
 								if(Next_Work_Time_Val<Next_Work_Time_Val_Old)
 								{
 									Next_Work_Time_Val_Old=Next_Work_Time_Val;
@@ -184,10 +188,6 @@ void work_task(void const * argument )
 							
 						}
 					}
-					else{
-						work_time.Taday_Task_Flag=0;
-					}
-
 						work_time.work_time_flag=0;
 						work_time.working_once=0;
 						work_time.which_working_time++;	//记录哪个工作组在工作									
@@ -271,7 +271,13 @@ void work_task(void const * argument )
 			else if(work_time.working_flag==1 && Pcd_Massage_Flag.Pcd_Write_Flag==3) //要上报重量完成再工作
 			{
 					work_time.working_flag=2;
-					work_time.working_interval_time=1;			//工作开始，同时开始计数间隔时间
+					if(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].worktime>=60)
+					{
+						work_time.working_interval_time=2;			//工作开始，同时开始计数间隔时间
+					}
+					else{
+						work_time.working_interval_time=1;			//工作开始，同时开始计数间隔时间
+					}
 					work_time.working_time=0;					//工作时间计数清零，开始工作
 					Motor_Working(Cjson_Buf.Cjson_Buffer_Data[work_time.which_working_time].gears);
 					HAL_UART_Transmit(&huart3,(u8*)"工作!", strlen("工作!"), 100);    //

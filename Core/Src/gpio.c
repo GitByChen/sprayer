@@ -113,7 +113,6 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
   HAL_GPIO_Init(SPI3_NSS_GPIO_Port, &GPIO_InitStruct);
 
- HAL_GPIO_WritePin(GPIOB, LCD_BL_Pin, GPIO_PIN_RESET);
 }
 
 /* USER CODE BEGIN 2 */

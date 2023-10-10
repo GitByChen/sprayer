@@ -47,7 +47,9 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+extern u16 GET_RTC_TIMEOUT;
+extern	RTC_DateTypeDef GetData;    //日期
+extern	RTC_TimeTypeDef GetTime;    //时间
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -175,39 +177,26 @@ void StartDefaultTask(void const * argument)
   //num_data = RESET_PULSE + 10 * 24;
 	ws2812_init(10);// 所有RGB小灯的初始化   --- 10个
  // ws2812_red(10);
+ u8 ret=0;
   for(;;)
   {
 		Uart_task();
-    if( execute_work_flag==1)
+    if( execute_work_flag==1 &&ret==0)
     {
         Motor_Working(3);
+        ret=1;
     }
-    else if(execute_work_flag==0 && work_time.working_flag!=2)  //只有在没有工作任务工作时才可关闭
+    else if(execute_work_flag==0 && work_time.working_flag!=2 && ret==1)  //只有在没有工作任务工作时才可关闭
     {
+      ret=0;
       Motor_Working(0);
     }
-    /*if(i<10)
-    {     
-      //memset(RGB_buffur,0,sizeof(RGB_buffur));
-      for(j=0;j<10;j++)
-      {
-        if(j==i)
-        {
-          ws2812_set_RGB(0x22, 0, 0, i);//0x50  白色最亮
-        }
-        else
-        {
-          ws2812_set_RGB(0x00, 0, 0, j);//0x50  白色最亮
-
-        }
-      }
-      HAL_TIM_PWM_Start_DMA(&htim1,TIM_CHANNEL_2,(uint32_t *)RGB_buffur,(num_data)); 
-      i++;                  
+    if( GET_RTC_TIMEOUT>=100)
+    {
+      HAL_RTC_GetTime(&hrtc, &GetTime, RTC_FORMAT_BIN);	//获取时间
+			HAL_RTC_GetDate(&hrtc, &GetData, RTC_FORMAT_BIN);	//获取日期
+      GET_RTC_TIMEOUT=0;
     }
-    else{
-      i=0;
-    }
-    HAL_Delay(500);*/
     if(BC260_Massage.BC260Y_CONNECT_FLAG==0)
     {
       if(RGB_timer<=500)
@@ -240,7 +229,7 @@ void StartDefaultTask(void const * argument)
   
 
 //    MQTT_Receive_Data();
-//		HAL_IWDG_Refresh(&hiwdg);
+		HAL_IWDG_Refresh(&hiwdg);
 		osDelay(10);
   }
   /* USER CODE END StartDefaultTask */
